@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Equity History - SFITS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+
+  <body class="bg-gray-100 p-6">
+    <h1 class="text-2xl font-bold mb-6">Equity History</h1>
+
+    <!-- SELECT STARTUP -->
+    <div class="mb-4">
+      <select class="border p-2 rounded">
+        <option>Select Startup</option>
+        <option>PayEase</option>
+      </select>
+    </div>
+
+    <!-- TABLE -->
+    <div class="bg-white p-6 rounded-xl shadow mb-6">
+      <h2 class="text-lg font-semibold mb-4">Ownership Over Rounds</h2>
+
+      <table class="w-full border">
+        <thead class="bg-gray-200">
+          <tr>
+            <th class="p-2 border">Round</th>
+            <th class="p-2 border">Stakeholder</th>
+            <th class="p-2 border">Type</th>
+            <th class="p-2 border">Equity (%)</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td class="p-2 border">Seed</td>
+            <td class="p-2 border">Ananya Sharma</td>
+            <td class="p-2 border text-blue-600">Founder</td>
+            <td class="p-2 border">60%</td>
+          </tr>
+          <tr>
+            <td class="p-2 border">Seed</td>
+            <td class="p-2 border">BlueChip Ventures</td>
+            <td class="p-2 border text-green-600">Investor</td>
+            <td class="p-2 border">40%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- LINE CHART -->
+    <div class="bg-white p-6 rounded-xl shadow">
+      <h2 class="text-lg font-semibold mb-4">Equity Trend</h2>
+
+      <canvas id="historyChart"></canvas>
+    </div>
+
+    <!-- CHART SCRIPT -->
+    <script>
+      const ctx = document.getElementById("historyChart");
+
+      new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: ["Seed", "Series A"],
+          datasets: [
+            {
+              label: "Founder",
+              data: [100, 60],
+              borderWidth: 2,
+            },
+            {
+              label: "Investor",
+              data: [0, 40],
+              borderWidth: 2,
+            },
+          ],
+        },
+      });
+    </script>
+  </body>
+</html>
+```

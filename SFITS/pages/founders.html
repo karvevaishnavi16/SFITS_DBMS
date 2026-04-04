@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Founders - SFITS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body class="bg-gray-100 p-6">
+    <h1 class="text-2xl font-bold mb-6">Founder Management</h1>
+
+    <!-- FORM -->
+    <div class="bg-white p-6 rounded-xl shadow mb-6">
+      <h2 class="text-lg font-semibold mb-4">Add Founder</h2>
+
+      <form class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input
+          type="text"
+          placeholder="Founder Name"
+          class="border p-2 rounded"
+          required
+        />
+
+        <input
+          type="text"
+          placeholder="Role (CEO/CTO)"
+          class="border p-2 rounded"
+        />
+
+        <input
+          type="number"
+          placeholder="Initial Equity (%)"
+          class="border p-2 rounded"
+        />
+
+        <select class="border p-2 rounded">
+          <option>Select Startup</option>
+          <option>PayEase</option>
+          <option>MediScan</option>
+        </select>
+
+        <button
+          class="bg-blue-600 text-white p-2 rounded col-span-2 hover:bg-blue-700"
+        >
+          Add Founder
+        </button>
+      </form>
+    </div>
+
+    <!-- TABLE -->
+    <div class="bg-white p-6 rounded-xl shadow">
+      <h2 class="text-lg font-semibold mb-4">Founder List</h2>
+
+      <table class="w-full border">
+        <thead class="bg-gray-200">
+          <tr>
+            <th class="p-2 border">Name</th>
+            <th class="p-2 border">Role</th>
+            <th class="p-2 border">Startup</th>
+            <th class="p-2 border">Equity (%)</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td class="p-2 border">Ananya Sharma</td>
+            <td class="p-2 border">CEO</td>
+            <td class="p-2 border">PayEase</td>
+            <td class="p-2 border">60%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>
+```

@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Login - SFITS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body
+    class="bg-gradient-to-r from-blue-500 to-blue-700 min-h-screen flex items-center justify-center"
+  >
+    <!-- Login Card -->
+    <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
+      <!-- Title -->
+      <h2 class="text-2xl font-bold text-center text-blue-600 mb-2">
+        SFITS Login
+      </h2>
+      <p class="text-center text-gray-500 mb-6">
+        Startup Funding & Investor Tracking System
+      </p>
+
+      <!-- Form -->
+      <form id="loginForm">
+        <!-- Email -->
+        <div class="mb-4">
+          <label class="block text-gray-700 mb-1">Email</label>
+          <input
+            type="email"
+            id="email"
+            placeholder="Enter your email"
+            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+
+        <!-- Password -->
+        <div class="mb-4">
+          <label class="block text-gray-700 mb-1">Password</label>
+          <input
+            type="password"
+            id="password"
+            placeholder="Enter your password"
+            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+
+        <!-- Error Message -->
+        <p id="errorMsg" class="text-red-500 text-sm mb-3 hidden">
+          Invalid credentials
+        </p>
+
+        <!-- Button -->
+        <button
+          type="submit"
+          class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
+        >
+          Login
+        </button>
+        <p class="text-sm text-center mt-4">
+          Don't have an account?
+          <a href="signup.html" class="text-blue-600">Sign Up</a>
+        </p>
+      </form>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+      document
+        .getElementById("loginForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const role = localStorage.getItem("userRole");
+
+          if (!role) {
+            alert("User not found! Please sign up.");
+            return;
+          }
+
+          if (role === "founder") {
+            window.location.href = "founder_dashboard.html";
+          } else {
+            window.location.href = "investor_dashboard.html";
+          }
+        });
+    </script>
+  </body>
+</html>
