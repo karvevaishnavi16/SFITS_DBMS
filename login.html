@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Login - SFITS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body
+    class="bg-gradient-to-r from-blue-500 to-blue-700 min-h-screen flex items-center justify-center"
+  >
+    <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
+      <h2 class="text-2xl font-bold text-center text-blue-600 mb-2">
+        SFITS Login
+      </h2>
+      <p class="text-center text-gray-500 mb-6">
+        Startup Funding & Investor Tracking System
+      </p>
+
+      <form id="loginForm">
+        <div class="mb-4">
+          <label class="block text-gray-700 mb-1">Email</label>
+          <input
+            type="email"
+            id="email"
+            class="w-full px-4 py-2 border rounded-lg"
+            required
+          />
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 mb-1">Password</label>
+          <input
+            type="password"
+            id="password"
+            class="w-full px-4 py-2 border rounded-lg"
+            required
+          />
+        </div>
+
+        <p id="errorMsg" class="text-red-500 text-sm mb-3 hidden"></p>
+
+        <button
+          id="loginBtn"
+          class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
+        >
+          Login
+        </button>
+
+        <p class="text-sm text-center mt-4">
+          Don't have an account?
+          <a href="signup.html" class="text-blue-600">Sign Up</a>
+        </p>
+      </form>
+    </div>
+
+    <script>
+      document
+        .getElementById("loginForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const errorMsg = document.getElementById("errorMsg");
+          const btn = document.getElementById("loginBtn");
+
+          errorMsg.classList.add("hidden");
+          btn.innerText = "Logging in...";
+          btn.disabled = true;
+
+          const email = document.getElementById("email").value;
+          const password = document.getElementById("password").value;
+
+          try {
+            const res = await fetch("http://localhost:5000/login", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email, password }),
+            });
+
+            if (!res.ok) {
+              const msg = await res.text();
+              throw new Error(msg);
+            }
+
+            const user = await res.json();
+
+            // 🔥 CLEAR OLD DATA (VERY IMPORTANT)
+            localStorage.clear();
+
+            // ✅ STORE NEW SESSION
+            localStorage.setItem("user_id", user.user_id);
+            localStorage.setItem("user_role", user.role);
+            localStorage.setItem("username", user.username);
+
+            // ✅ REDIRECT
+            if (user.role === "founder") {
+              window.location.href = "founder_dashboard.html";
+            } else {
+              window.location.href = "investor_dashboard.html";
+            }
+          } catch (err) {
+            errorMsg.innerText = err.message || "Login failed";
+            errorMsg.classList.remove("hidden");
+          } finally {
+            btn.innerText = "Login";
+            btn.disabled = false;
+          }
+        });
+    </script>
+  </body>
+</html>

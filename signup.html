@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Sign Up - SFITS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body
+    class="bg-gradient-to-r from-blue-500 to-blue-700 min-h-screen flex items-center justify-center"
+  >
+    <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
+      <h2 class="text-2xl font-bold text-center text-blue-600 mb-6">
+        Create Account
+      </h2>
+
+      <form id="signupForm">
+        <input
+          id="username"
+          type="text"
+          placeholder="Full Name"
+          class="w-full p-2 border rounded mb-3"
+          required
+        />
+
+        <input
+          id="email"
+          type="email"
+          placeholder="Email"
+          class="w-full p-2 border rounded mb-3"
+          required
+        />
+
+        <select id="role" class="w-full p-2 border rounded mb-3" required>
+          <option value="">Select Role</option>
+          <option value="founder">Founder</option>
+          <option value="investor">Investor</option>
+        </select>
+
+        <input
+          id="password"
+          type="password"
+          placeholder="Password"
+          class="w-full p-2 border rounded mb-4"
+          required
+        />
+
+        <button
+          class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+        >
+          Sign Up
+        </button>
+      </form>
+
+      <p class="text-sm text-center mt-4">
+        Already have an account?
+        <a href="login.html" class="text-blue-600">Login</a>
+      </p>
+    </div>
+
+    <script>
+      document
+        .getElementById("signupForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          console.log("Form submitted"); // 👈 DEBUG
+
+          const username = document.getElementById("username").value;
+          const email = document.getElementById("email").value;
+          const password = document.getElementById("password").value;
+          const role = document.getElementById("role").value;
+
+          console.log(username, email, role); // 👈 DEBUG
+
+          try {
+            const res = await fetch("http://localhost:5000/signup", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ username, email, password, role }),
+            });
+
+            console.log("Response:", res); // 👈 DEBUG
+
+            if (res.ok) {
+              alert("Signup successful!");
+              window.location.href = "login.html";
+            } else {
+              const msg = await res.text();
+              alert(msg);
+            }
+          } catch (err) {
+            console.error("Fetch error:", err);
+          }
+        });
+    </script>
+  </body>
+</html>

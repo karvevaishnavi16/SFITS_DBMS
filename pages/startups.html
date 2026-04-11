@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Startups - SFITS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body class="bg-gray-100">
+    <div class="flex">
+      <!-- SIDEBAR -->
+      <div class="w-64 h-screen bg-blue-700 text-white p-5">
+        <h2 class="text-2xl font-bold mb-6">Founder Panel</h2>
+
+        <ul class="space-y-3">
+          <li>
+            <a
+              href="../founder_dashboard.html"
+              class="block p-2 hover:bg-blue-600 rounded"
+              >🏠 Dashboard</a
+            >
+          </li>
+          <li>
+            <a href="startups.html" class="block p-2 bg-blue-600 rounded"
+              >🚀 My Startups</a
+            >
+          </li>
+          <li>
+            <a href="founders.html" class="block p-2 hover:bg-blue-600 rounded"
+              >👥 Founders</a
+            >
+          </li>
+          <li>
+            <a href="funding.html" class="block p-2 hover:bg-blue-600 rounded"
+              >💸 Funding</a
+            >
+          </li>
+          <li>
+            <a href="captable.html" class="block p-2 hover:bg-blue-600 rounded"
+              >📊 Cap Table</a
+            >
+          </li>
+          <li>
+            <a href="history.html" class="block p-2 hover:bg-blue-600 rounded"
+              >🕒 History</a
+            >
+          </li>
+        </ul>
+      </div>
+
+      <!-- MAIN -->
+      <div class="p-6 w-full">
+        <h1 class="text-2xl font-bold mb-6">Startup Management</h1>
+
+        <!-- FORM -->
+        <div class="bg-white p-6 rounded-xl shadow mb-6">
+          <h2 class="text-lg font-semibold mb-4">Add Startup</h2>
+
+          <form id="startupForm" class="grid grid-cols-2 gap-4">
+            <input
+              id="name"
+              type="text"
+              placeholder="Startup Name"
+              class="border p-2 rounded"
+              required
+            />
+            <input
+              id="year"
+              type="number"
+              placeholder="Founded Year"
+              class="border p-2 rounded"
+              required
+            />
+
+            <select id="stage" class="border p-2 rounded" required>
+              <option value="">Select Stage</option>
+              <option>Pre-Seed</option>
+              <option>Seed</option>
+              <option>Series A</option>
+              <option>Series B</option>
+              <option>Series C</option>
+            </select>
+
+            <select id="industry" class="border p-2 rounded" required>
+              <option value="">Select Industry</option>
+              <option value="I001">FinTech</option>
+              <option value="I002">HealthTech</option>
+              <option value="I003">EdTech</option>
+            </select>
+
+            <input
+              id="city"
+              type="text"
+              placeholder="City"
+              class="border p-2 rounded"
+            />
+            <input
+              id="state"
+              type="text"
+              placeholder="State"
+              class="border p-2 rounded"
+            />
+            <input
+              id="country"
+              type="text"
+              placeholder="Country"
+              class="border p-2 rounded"
+            />
+
+            <button
+              class="bg-blue-600 text-white p-2 rounded col-span-2 hover:bg-blue-700"
+            >
+              Add Startup
+            </button>
+          </form>
+        </div>
+
+        <!-- TABLE -->
+        <div class="bg-white p-6 rounded-xl shadow">
+          <h2 class="text-lg font-semibold mb-4">Startup List</h2>
+
+          <table class="w-full border">
+            <thead>
+              <tr class="bg-gray-200">
+                <th class="border p-2">Name</th>
+                <th class="border p-2">Year</th>
+                <th class="border p-2">Stage</th>
+                <th class="border p-2">City</th>
+                <th class="border p-2">Country</th>
+                <th class="border p-2">Action</th>
+              </tr>
+            </thead>
+
+            <tbody id="startupTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const table = document.getElementById("startupTable");
+
+      window.onload = function () {
+        const user_id = localStorage.getItem("user_id");
+
+        // 🔒 LOGIN CHECK
+        if (!user_id) {
+          alert("Please login first");
+          window.location.href = "../login.html";
+          return;
+        }
+
+        loadStartups();
+      };
+
+      // ✅ LOAD STARTUPS
+      async function loadStartups() {
+        try {
+          const user_id = localStorage.getItem("user_id");
+
+          const res = await fetch(`http://localhost:5000/startups/${user_id}`);
+
+          if (!res.ok) throw new Error("API failed");
+
+          const data = await res.json();
+
+          table.innerHTML = "";
+
+          if (data.length === 0) {
+            table.innerHTML = `
+        <tr>
+          <td colspan="6" class="text-center p-4">
+            No startups found
+          </td>
+        </tr>`;
+            return;
+          }
+
+          data.forEach((s) => {
+            table.innerHTML += `
+        <tr>
+          <td class="border p-2">${s.startup_name}</td>
+          <td class="border p-2">${s.founded_year}</td>
+          <td class="border p-2">${s.stage}</td>
+          <td class="border p-2">${s.city}</td>
+          <td class="border p-2">${s.country}</td>
+          <td class="border p-2">
+            <button onclick="selectStartup('${s.startup_id}')"
+              class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600">
+              Select
+            </button>
+          </td>
+        </tr>
+      `;
+          });
+        } catch (err) {
+          console.error("Error loading startups:", err);
+        }
+      }
+
+      // ✅ ADD STARTUP
+      document
+        .getElementById("startupForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          try {
+            const user_id = localStorage.getItem("user_id");
+
+            const industry = document.getElementById("industry").value;
+
+            if (!industry) {
+              alert("Please select industry");
+              return;
+            }
+
+            const data = {
+              name: document.getElementById("name").value,
+              year: document.getElementById("year").value,
+              stage: document.getElementById("stage").value,
+              industry_id: industry,
+              city: document.getElementById("city").value,
+              state: document.getElementById("state").value,
+              country: document.getElementById("country").value,
+              user_id: user_id,
+            };
+
+            const res = await fetch("http://localhost:5000/addStartup", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(data),
+            });
+
+            const msg = await res.text();
+
+            if (!res.ok) throw new Error(msg);
+
+            alert("Startup Added ✅");
+            document.getElementById("startupForm").reset();
+            loadStartups();
+          } catch (err) {
+            alert(err.message || "Error adding startup ❌");
+            console.error(err);
+          }
+        });
+
+      // ✅ SELECT STARTUP
+      function selectStartup(id) {
+        localStorage.setItem("startup_id", id);
+        window.location.href = "../founder_dashboard.html";
+      }
+    </script>
+  </body>
+</html>

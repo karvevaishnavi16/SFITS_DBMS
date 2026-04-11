@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cap Table - SFITS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="bg-gray-100">
+
+<div class="flex">
+
+  <!-- SIDEBAR -->
+  <div class="w-64 h-screen bg-blue-700 text-white p-5">
+    <h2 class="text-2xl font-bold mb-6">Founder Panel</h2>
+
+    <ul class="space-y-3">
+      <li><a href="../founder_dashboard.html" class="block p-2 hover:bg-blue-600 rounded">🏠 Dashboard</a></li>
+      <li><a href="startups.html" class="block p-2 hover:bg-blue-600 rounded">🚀 My Startups</a></li>
+      <li><a href="founders.html" class="block p-2 hover:bg-blue-600 rounded">👥 Founders</a></li>
+      <li><a href="funding.html" class="block p-2 hover:bg-blue-600 rounded">💸 Funding</a></li>
+      <li><a href="captable.html" class="block p-2 bg-blue-600 rounded">📊 Cap Table</a></li>
+      <li><a href="history.html" class="block p-2 hover:bg-blue-600 rounded">🕒 History</a></li>
+      <li><a href="investments.html" class="block p-2 hover:bg-blue-600 rounded">💼 Investments</a></li>
+    </ul>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="p-6 w-full">
+
+    <h1 class="text-2xl font-bold mb-6">Cap Table</h1>
+
+    <!-- SELECT STARTUP -->
+    <div class="mb-4">
+      <select id="startupSelect" class="border p-2 rounded"></select>
+    </div>
+
+    <!-- TABLE -->
+    <div class="bg-white p-6 rounded-xl shadow mb-6">
+      <h2 class="text-lg font-semibold mb-4">Ownership Distribution</h2>
+
+      <table class="w-full border">
+        <thead class="bg-gray-200">
+          <tr>
+            <th class="p-2 border">Stakeholder</th>
+            <th class="p-2 border">Type</th>
+            <th class="p-2 border">Equity (%)</th>
+          </tr>
+        </thead>
+
+        <tbody id="capTableBody"></tbody>
+      </table>
+    </div>
+
+    <!-- PIE CHART -->
+    <div class="bg-white p-6 rounded-xl shadow">
+      <h2 class="text-lg font-semibold mb-4">Equity Visualization</h2>
+      <canvas id="capChart"></canvas>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let chart;
+
+window.onload = async function () {
+  const user_id = localStorage.getItem("user_id");
+
+  if (!user_id) {
+    alert("Please login first");
+    window.location.href = "../login.html";
+    return;
+  }
+
+  await loadStartups();
+
+  document
+    .getElementById("startupSelect")
+    .addEventListener("change", (e) => {
+      const id = e.target.value;
+      if (id) loadCapTable(id);
+    });
+};
+
+// LOAD STARTUPS
+async function loadStartups() {
+  const user_id = localStorage.getItem("user_id");
+
+  const res = await fetch(`http://localhost:5000/startups/${user_id}`);
+  const data = await res.json();
+
+  const dropdown = document.getElementById("startupSelect");
+  dropdown.innerHTML = `<option value="">Select Startup</option>`;
+
+  data.forEach((s) => {
+    dropdown.innerHTML += `
+      <option value="${s.startup_id}">
+        ${s.startup_name}
+      </option>`;
+  });
+}
+
+// LOAD CAP TABLE
+async function loadCapTable(startup_id) {
+  const res = await fetch(`http://localhost:5000/history/${startup_id}`);
+  const data = await res.json();
+
+  const table = document.getElementById("capTableBody");
+  table.innerHTML = "";
+
+  if (data.length === 0) {
+    table.innerHTML = `
+      <tr>
+        <td colspan="3" class="text-center p-4">
+          No cap table data available
+        </td>
+      </tr>`;
+    return;
+  }
+
+  // GET LATEST SNAPSHOT
+  const latestDate = Math.max(...data.map(d => new Date(d.recorded_at)));
+
+  const latestData = data.filter(
+    d => new Date(d.recorded_at).getTime() === latestDate
+  );
+
+  latestData.forEach((row) => {
+    table.innerHTML += `
+      <tr>
+        <td class="p-2 border">${row.stakeholder}</td>
+        <td class="p-2 border ${row.type === "Founder" ? "text-blue-600" : "text-green-600"}">${row.type}</td>
+        <td class="p-2 border">${row.equity}%</td>
+      </tr>`;
+  });
+
+  drawChart(latestData);
+}
+
+// DRAW CHART
+function drawChart(data) {
+  const ctx = document.getElementById("capChart");
+
+  if (chart) chart.destroy();
+
+  const labels = data.map(row => row.stakeholder);
+  const values = data.map(row => Number(row.equity));
+
+  chart = new Chart(ctx, {
+    type: "pie",
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          data: values,
+        },
+      ],
+    },
+  });
+}
+</script>
+
+</body>
+</html>

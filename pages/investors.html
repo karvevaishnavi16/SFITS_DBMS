@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Investors - SFITS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body class="bg-gray-100 p-6">
+    <h1 class="text-2xl font-bold mb-6">Investor Management</h1>
+
+    <!-- FORM -->
+    <div class="bg-white p-6 rounded-xl shadow mb-6">
+      <h2 class="text-lg font-semibold mb-4">Add Investor</h2>
+
+      <form id="investorForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input
+          id="name"
+          type="text"
+          placeholder="Investor Name"
+          class="border p-2 rounded"
+          required
+        />
+
+        <input
+          id="firm"
+          type="text"
+          placeholder="Firm Name"
+          class="border p-2 rounded"
+          required
+        />
+
+        <select id="type" class="border p-2 rounded" required>
+          <option value="">Investor Type</option>
+          <option value="Angel">Angel</option>
+          <option value="VC">VC</option>
+          <option value="Corporate">Corporate</option>
+          <option value="Private Equity">Private Equity</option>
+          <option value="Hedge Fund">Hedge Fund</option>
+          <option value="Family Office">Family Office</option>
+          <option value="Government">Government</option>
+          <option value="Accelerator">Accelerator</option>
+          <option value="Incubator">Incubator</option>
+          <option value="Crowdfunding">Crowdfunding</option>
+        </select>
+
+        <input
+          id="country"
+          type="text"
+          placeholder="Country"
+          class="border p-2 rounded"
+          required
+        />
+
+        <button class="bg-blue-600 text-white p-2 rounded col-span-2">
+          Add Investor
+        </button>
+      </form>
+    </div>
+
+    <!-- TABLE -->
+    <div class="bg-white p-6 rounded-xl shadow">
+      <h2 class="text-lg font-semibold mb-4">Investor List</h2>
+
+      <table class="w-full border">
+        <thead class="bg-gray-200">
+          <tr>
+            <th class="p-2 border">Name</th>
+            <th class="p-2 border">Firm</th>
+            <th class="p-2 border">Type</th>
+            <th class="p-2 border">Country</th>
+          </tr>
+        </thead>
+
+        <tbody id="investorTable"></tbody>
+      </table>
+    </div>
+
+    <!-- SUBMIT -->
+    <script>
+      document
+        .getElementById("investorForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const name = document.getElementById("name").value;
+          const firm = document.getElementById("firm").value;
+          const type = document.getElementById("type").value;
+          const country = document.getElementById("country").value;
+
+          const res = await fetch("http://localhost:5000/addInvestor", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, firm, type, country }),
+          });
+
+          if (res.ok) {
+            alert("Investor added!");
+            loadInvestors();
+          } else {
+            alert("Error adding investor");
+          }
+        });
+    </script>
+
+    <!-- LOAD TABLE -->
+    <script>
+      async function loadInvestors() {
+        const res = await fetch("http://localhost:5000/investors");
+        const data = await res.json();
+
+        const table = document.getElementById("investorTable");
+        table.innerHTML = "";
+
+        data.forEach((i) => {
+          table.innerHTML += `
+      <tr>
+        <td class="p-2 border">${i.investor_name}</td>
+        <td class="p-2 border">${i.firm_name}</td>
+        <td class="p-2 border">${i.investor_type}</td>
+        <td class="p-2 border">${i.country}</td>
+      </tr>
+    `;
+        });
+      }
+
+      loadInvestors();
+    </script>
+  </body>
+</html>

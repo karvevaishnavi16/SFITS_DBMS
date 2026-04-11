@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Founder Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body class="bg-gray-100">
+    <div class="flex">
+      <!-- Sidebar -->
+      <div class="w-64 h-screen bg-blue-700 text-white p-5">
+        <h2 class="text-2xl font-bold mb-6">Founder Panel</h2>
+
+        <ul class="space-y-3">
+          <li>
+            <a href="#" class="block p-2 bg-blue-600 rounded">🏠 Dashboard</a>
+          </li>
+          <li>
+            <a
+              href="pages/startups.html"
+              class="block p-2 hover:bg-blue-600 rounded"
+              >🚀 My Startups</a
+            >
+          </li>
+          <li>
+            <a
+              href="pages/founders.html"
+              class="block p-2 hover:bg-blue-600 rounded"
+              >👥 Founders</a
+            >
+          </li>
+          <li>
+            <a
+              href="pages/funding.html"
+              class="block p-2 hover:bg-blue-600 rounded"
+              >💸 Funding</a
+            >
+          </li>
+          <li>
+            <a
+              href="pages/captable.html"
+              class="block p-2 hover:bg-blue-600 rounded"
+              >📊 Cap Table</a
+            >
+          </li>
+          <li>
+            <a
+              href="pages/history.html"
+              class="block p-2 hover:bg-blue-600 rounded"
+              >🕒 History</a
+            >
+          </li>
+        </ul>
+      </div>
+
+      <!-- Main -->
+      <div class="p-6 w-full">
+        <h1 class="text-2xl font-bold mb-6">Welcome, Founder 👩‍💼</h1>
+
+        <!-- TOP CARDS -->
+        <div class="grid grid-cols-3 gap-4 mb-6">
+          <div class="bg-white p-5 rounded-xl shadow">
+            <h2 class="text-gray-500 text-sm">Total Funding</h2>
+            <p id="funding" class="text-2xl font-bold text-blue-600">-</p>
+          </div>
+
+          <div class="bg-white p-5 rounded-xl shadow">
+            <h2 class="text-gray-500 text-sm">Investors</h2>
+            <p id="investors" class="text-2xl font-bold text-green-600">-</p>
+          </div>
+
+          <div class="bg-white p-5 rounded-xl shadow">
+            <h2 class="text-gray-500 text-sm">Founder Equity</h2>
+            <p id="equity" class="text-2xl font-bold text-purple-600">-</p>
+          </div>
+        </div>
+
+        <!-- EXTRA -->
+        <div class="grid grid-cols-3 gap-4">
+          <div class="bg-white p-5 rounded-xl shadow">
+            <h2 class="text-gray-500 text-sm">Startup Stage</h2>
+            <p id="stage" class="text-xl font-semibold">-</p>
+          </div>
+
+          <div class="bg-white p-5 rounded-xl shadow">
+            <h2 class="text-gray-500 text-sm">Latest Round</h2>
+            <p id="round" class="text-xl font-semibold">-</p>
+          </div>
+
+          <div class="bg-white p-5 rounded-xl shadow">
+            <h2 class="text-gray-500 text-sm">Valuation</h2>
+            <p id="valuation" class="text-xl font-semibold">-</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.onload = function () {
+        const user_id = localStorage.getItem("user_id");
+        const startup_id = localStorage.getItem("startup_id");
+
+        // 🔒 LOGIN CHECK
+        if (!user_id) {
+          alert("Please login first");
+          window.location.href = "login.html";
+          return;
+        }
+
+        // 🚨 STARTUP CHECK
+        if (!startup_id) {
+          alert("Select a startup first");
+          window.location.href = "pages/startups.html";
+          return;
+        }
+
+        loadDashboard(startup_id);
+      };
+
+      async function loadDashboard(startup_id) {
+        try {
+          const res = await fetch(
+            `http://localhost:5000/startupDashboard/${startup_id}`,
+          );
+
+          if (!res.ok) throw new Error("Dashboard API failed");
+
+          const data = await res.json();
+
+          // 💰 FUNDING
+          const funding = data.total_funding || 0;
+          document.getElementById("funding").innerText = funding
+            ? "₹" + (funding / 1000000).toFixed(2) + "M"
+            : "No funding";
+
+          // 👥 INVESTORS
+          document.getElementById("investors").innerText =
+            data.total_investors || 0;
+
+          // 📊 EQUITY
+          document.getElementById("equity").innerText =
+            (data.founder_equity || 0) + "%";
+
+          // EXTRA
+          document.getElementById("stage").innerText = data.stage || "N/A";
+
+          document.getElementById("round").innerText =
+            data.latest_round || "N/A";
+
+          document.getElementById("valuation").innerText = data.valuation
+            ? "₹" + (data.valuation / 1000000).toFixed(2) + "M"
+            : "N/A";
+        } catch (err) {
+          console.error("Dashboard error:", err);
+        }
+      }
+    </script>
+  </body>
+</html>
