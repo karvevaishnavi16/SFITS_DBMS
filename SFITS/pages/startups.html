@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Startups - SFITS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body class="bg-gray-100 p-6">
+    <h1 class="text-2xl font-bold mb-6">Startup Management</h1>
+
+    <!-- FORM -->
+    <div class="bg-white p-6 rounded-xl shadow mb-6">
+      <h2 class="text-lg font-semibold mb-4">Add Startup</h2>
+
+      <form id="startupForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input
+          type="text"
+          placeholder="Startup Name"
+          class="border p-2 rounded"
+          required
+        />
+        <input
+          type="number"
+          placeholder="Founded Year"
+          class="border p-2 rounded"
+          required
+        />
+        <input
+          type="text"
+          placeholder="Stage (Seed/Series A)"
+          class="border p-2 rounded"
+        />
+        <input type="text" placeholder="City" class="border p-2 rounded" />
+        <input type="text" placeholder="State" class="border p-2 rounded" />
+        <input type="text" placeholder="Country" class="border p-2 rounded" />
+
+        <button
+          class="bg-blue-600 text-white p-2 rounded col-span-2 hover:bg-blue-700"
+        >
+          Add Startup
+        </button>
+      </form>
+    </div>
+
+    <!-- TABLE -->
+    <div class="bg-white p-6 rounded-xl shadow">
+      <h2 class="text-lg font-semibold mb-4">Startup List</h2>
+
+      <table class="w-full border">
+        <thead class="bg-gray-200">
+          <tr>
+            <th class="p-2 border">Name</th>
+            <th class="p-2 border">Year</th>
+            <th class="p-2 border">Stage</th>
+            <th class="p-2 border">City</th>
+            <th class="p-2 border">Country</th>
+          </tr>
+        </thead>
+
+        <tbody id="startupTable">
+          <tr>
+            <td class="p-2 border">Sample Startup</td>
+            <td class="p-2 border">2020</td>
+            <td class="p-2 border">Seed</td>
+            <td class="p-2 border">Pune</td>
+            <td class="p-2 border">India</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>
+```
