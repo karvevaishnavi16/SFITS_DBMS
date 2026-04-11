@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Founders - SFITS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body class="bg-gray-100 p-6">
+    <h1 class="text-2xl font-bold mb-6">Founder Management</h1>
+
+    <!-- FORM -->
+    <div class="bg-white p-6 rounded-xl shadow mb-6">
+      <h2 class="text-lg font-semibold mb-4">Add Founder</h2>
+
+      <form id="founderForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input
+          id="name"
+          type="text"
+          placeholder="Founder Name"
+          class="border p-2 rounded"
+          required
+        />
+
+        <input
+          id="role"
+          type="text"
+          placeholder="Role (CEO/CTO)"
+          class="border p-2 rounded"
+        />
+
+        <input
+          id="equity"
+          type="number"
+          placeholder="Initial Equity (%)"
+          class="border p-2 rounded"
+        />
+
+        <select id="startup_id" class="border p-2 rounded">
+          <option value="">Select Startup</option>
+        </select>
+
+        <button
+          class="bg-blue-600 text-white p-2 rounded col-span-2 hover:bg-blue-700"
+        >
+          Add Founder
+        </button>
+      </form>
+    </div>
+
+    <!-- TABLE -->
+    <div class="bg-white p-6 rounded-xl shadow">
+      <h2 class="text-lg font-semibold mb-4">Founder List</h2>
+
+      <table class="w-full border">
+        <thead class="bg-gray-200">
+          <tr>
+            <th class="p-2 border">Name</th>
+            <th class="p-2 border">Role</th>
+            <th class="p-2 border">Startup</th>
+            <th class="p-2 border">Equity (%)</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td class="p-2 border">Ananya Sharma</td>
+            <td class="p-2 border">CEO</td>
+            <td class="p-2 border">PayEase</td>
+            <td class="p-2 border">60%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- TABLE ENDS ABOVE -->
+    <!-- LOAD STARTUPS SCRIPT -->
+    <script>
+      async function loadStartups() {
+        const res = await fetch("http://localhost:5000/startups");
+        const data = await res.json();
+
+        const dropdown = document.getElementById("startup_id");
+
+        data.forEach((s) => {
+          dropdown.innerHTML += `<option value="${s.startup_id}">
+            ${s.startup_name}
+          </option>`;
+        });
+      }
+
+      loadStartups();
+    </script>
+
+    <!-- CONNECT FORM TO BACKEND -->
+    <script>
+      document
+        .getElementById("founderForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+          const name = document.getElementById("name").value;
+          const role = document.getElementById("role").value;
+          const equity = document.getElementById("equity").value;
+          const startup_id = document.getElementById("startup_id").value;
+          const res = await fetch("http://localhost:5000/addFounder", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, role, equity, startup_id }),
+          });
+          if (res.ok) {
+            alert("Founder added!");
+          } else {
+            alert("Error adding founder");
+          }
+        });
+    </script>
+  </body>
+</html>

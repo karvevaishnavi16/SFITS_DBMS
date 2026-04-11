@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Startups - SFITS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body class="bg-gray-100 p-6">
+    <h1 class="text-2xl font-bold mb-6">Startup Management</h1>
+
+    <!-- FORM -->
+    <div class="bg-white p-6 rounded-xl shadow mb-6">
+      <h2 class="text-lg font-semibold mb-4">Add Startup</h2>
+
+      <form id="startupForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input
+          id="name"
+          type="text"
+          placeholder="Startup Name"
+          class="border p-2 rounded"
+          required
+        />
+        <input
+          id="year"
+          type="number"
+          placeholder="Founded Year"
+          class="border p-2 rounded"
+          min="1900"
+          max="2026"
+          required
+        />
+        <select id="stage" class="border p-2 rounded">
+          <option value="">Select Stage</option>
+          <option value="Pre-Seed">Pre-Seed</option>
+          <option value="Seed">Seed</option>
+          <option value="Series A">Series A</option>
+          <option value="Series B">Series B</option>
+          <option value="Series C">Series C</option>
+        </select>
+        <input
+          id="city"
+          type="text"
+          placeholder="City"
+          class="border p-2 rounded"
+        />
+        <input
+          id="state"
+          type="text"
+          placeholder="State"
+          class="border p-2 rounded"
+        />
+        <input
+          id="country"
+          type="text"
+          placeholder="Country"
+          class="border p-2 rounded"
+        />
+
+        <button
+          class="bg-blue-600 text-white p-2 rounded col-span-2 hover:bg-blue-700"
+        >
+          Add Startup
+        </button>
+      </form>
+    </div>
+
+    <!-- TABLE -->
+    <div class="bg-white p-6 rounded-xl shadow">
+      <h2 class="text-lg font-semibold mb-4">Startup List</h2>
+
+      <table class="w-full border">
+        <thead class="bg-gray-200">
+          <tr>
+            <th class="p-2 border">Name</th>
+            <th class="p-2 border">Year</th>
+            <th class="p-2 border">Stage</th>
+            <th class="p-2 border">City</th>
+            <th class="p-2 border">Country</th>
+          </tr>
+        </thead>
+
+        <tbody id="startupTable"></tbody>
+      </table>
+    </div>
+
+    <!-- SCRIPT -->
+    <script>
+      const table = document.getElementById("startupTable");
+
+      // 🔹 LOAD DATA FROM DATABASE
+      async function loadStartups() {
+        try {
+          const res = await fetch("http://localhost:5000/startups");
+          const data = await res.json();
+
+          table.innerHTML = "";
+
+          data.forEach((s) => {
+            table.innerHTML += `
+              <tr>
+                <td class="p-2 border">${s.startup_name}</td>
+                <td class="p-2 border">${s.founded_year}</td>
+                <td class="p-2 border">${s.stage}</td>
+                <td class="p-2 border">${s.city}</td>
+                <td class="p-2 border">${s.country}</td>
+              </tr>
+            `;
+          });
+        } catch (err) {
+          console.error("Error loading startups:", err);
+        }
+      }
+
+      // 🔹 ADD NEW STARTUP
+      document
+        .getElementById("startupForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const data = {
+            name: document.getElementById("name").value,
+            year: document.getElementById("year").value,
+            stage: document.getElementById("stage").value,
+            city: document.getElementById("city").value,
+            state: document.getElementById("state").value,
+            country: document.getElementById("country").value,
+          };
+
+          try {
+            const res = await fetch("http://localhost:5000/addStartup", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(data),
+            });
+
+            if (res.ok) {
+              loadStartups(); // refresh table
+              document.getElementById("startupForm").reset();
+            } else {
+              alert("Error adding startup");
+            }
+          } catch (err) {
+            console.error("Error:", err);
+          }
+        });
+
+      // 🔹 LOAD ON PAGE OPEN
+      loadStartups();
+    </script>
+  </body>
+</html>
