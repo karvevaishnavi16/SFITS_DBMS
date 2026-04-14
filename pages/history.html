@@ -1,176 +1,264 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Equity History - SFITS</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Equity History - SFITS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
 
-<body class="bg-gray-100">
+  <body class="bg-gray-100">
+    <div class="flex">
+      <!-- SIDEBAR -->
+      <div class="w-64 h-screen bg-blue-700 text-white p-5">
+        <h2 class="text-2xl font-bold mb-6">Founder Panel</h2>
 
-<div class="flex">
+        <ul class="space-y-3">
+          <li>
+            <a
+              href="../founder_dashboard.html"
+              class="block p-2 hover:bg-blue-600 rounded"
+              >🏠 Dashboard</a
+            >
+          </li>
+          <li>
+            <a href="startups.html" class="block p-2 hover:bg-blue-600 rounded"
+              >🚀 My Startups</a
+            >
+          </li>
+          <li>
+            <a href="founders.html" class="block p-2 hover:bg-blue-600 rounded"
+              >👥 Founders</a
+            >
+          </li>
+          <li>
+            <a href="funding.html" class="block p-2 hover:bg-blue-600 rounded"
+              >💸 Funding</a
+            >
+          </li>
+          <li>
+            <a href="captable.html" class="block p-2 hover:bg-blue-600 rounded"
+              >📊 Cap Table</a
+            >
+          </li>
+          <li>
+            <a href="history.html" class="block p-2 bg-blue-600 rounded"
+              >🕒 History</a
+            >
+          </li>
+        </ul>
+      </div>
 
-  <!-- SIDEBAR -->
-  <div class="w-64 h-screen bg-blue-700 text-white p-5">
-    <h2 class="text-2xl font-bold mb-6">Founder Panel</h2>
+      <!-- MAIN CONTENT -->
+      <div class="p-6 w-full">
+        <h1 class="text-2xl font-bold mb-6">Equity History</h1>
 
-    <ul class="space-y-3">
-      <li><a href="../founder_dashboard.html" class="block p-2 hover:bg-blue-600 rounded">🏠 Dashboard</a></li>
-      <li><a href="startups.html" class="block p-2 hover:bg-blue-600 rounded">🚀 My Startups</a></li>
-      <li><a href="founders.html" class="block p-2 hover:bg-blue-600 rounded">👥 Founders</a></li>
-      <li><a href="funding.html" class="block p-2 hover:bg-blue-600 rounded">💸 Funding</a></li>
-      <li><a href="captable.html" class="block p-2 hover:bg-blue-600 rounded">📊 Cap Table</a></li>
-      <li><a href="history.html" class="block p-2 bg-blue-600 rounded">🕒 History</a></li>
-      <li><a href="investments.html" class="block p-2 hover:bg-blue-600 rounded">💼 Investments</a></li>
-    </ul>
-  </div>
+        <!-- DROPDOWN -->
+        <select id="startup_id" class="border p-2 mb-4 rounded"></select>
 
-  <!-- MAIN CONTENT -->
-  <div class="p-6 w-full">
+        <!-- TABLE -->
+        <div class="bg-white p-6 rounded-xl shadow mb-6">
+          <table class="w-full border">
+            <thead class="bg-gray-200">
+              <tr>
+                <th class="p-2 border">Round</th>
+                <th class="p-2 border">Stakeholder</th>
+                <th class="p-2 border">Type</th>
+                <th class="p-2 border">Equity (%)</th>
+              </tr>
+            </thead>
+            <tbody id="historyTable"></tbody>
+          </table>
+        </div>
 
-    <h1 class="text-2xl font-bold mb-6">Equity History</h1>
-
-    <!-- DROPDOWN -->
-    <select id="startup_id" class="border p-2 mb-4 rounded"></select>
-
-    <!-- TABLE -->
-    <div class="bg-white p-6 rounded-xl shadow mb-6">
-      <table class="w-full border">
-        <thead class="bg-gray-200">
-          <tr>
-            <th class="p-2 border">Round</th>
-            <th class="p-2 border">Stakeholder</th>
-            <th class="p-2 border">Type</th>
-            <th class="p-2 border">Equity (%)</th>
-          </tr>
-        </thead>
-        <tbody id="historyTable"></tbody>
-      </table>
+        <!-- CHART -->
+        <div class="bg-white p-6 rounded-xl shadow">
+          <canvas id="chart"></canvas>
+        </div>
+      </div>
     </div>
 
-    <!-- CHART -->
-    <div class="bg-white p-6 rounded-xl shadow">
-      <canvas id="chart"></canvas>
-    </div>
+    <script>
+      let chart;
 
-  </div>
-</div>
+      window.onload = async function () {
+        const user_id = localStorage.getItem("user_id");
 
-<script>
-let chart;
+        if (!user_id) {
+          alert("Please login first");
+          window.location.href = "../login.html";
+          return;
+        }
 
-window.onload = async function () {
-  const user_id = localStorage.getItem("user_id");
+        await loadStartups();
 
-  if (!user_id) {
-    alert("Please login first");
-    window.location.href = "../login.html";
-    return;
-  }
+        document
+          .getElementById("startup_id")
+          .addEventListener("change", loadHistory);
+      };
 
-  await loadStartups();
+      // LOAD STARTUPS
+      async function loadStartups() {
+        const user_id = localStorage.getItem("user_id");
 
-  document
-    .getElementById("startup_id")
-    .addEventListener("change", loadHistory);
-};
+        const res = await fetch(`http://localhost:5000/startups/${user_id}`);
+        const data = await res.json();
 
-// LOAD STARTUPS
-async function loadStartups() {
-  const user_id = localStorage.getItem("user_id");
+        const dropdown = document.getElementById("startup_id");
+        dropdown.innerHTML = `<option value="">Select Startup</option>`;
 
-  const res = await fetch(`http://localhost:5000/startups/${user_id}`);
-  const data = await res.json();
-
-  const dropdown = document.getElementById("startup_id");
-  dropdown.innerHTML = `<option value="">Select Startup</option>`;
-
-  data.forEach((s) => {
-    dropdown.innerHTML += `
+        data.forEach((s) => {
+          dropdown.innerHTML += `
       <option value="${s.startup_id}">
         ${s.startup_name}
       </option>`;
-  });
-}
+        });
 
-// LOAD HISTORY
-async function loadHistory() {
-  const startup_id = document.getElementById("startup_id").value;
-  if (!startup_id) return;
+        // ✅ AFTER loop (IMPORTANT)
+        if (data.length > 0) {
+          dropdown.value = data[0].startup_id;
+          loadHistory();
+        }
+      }
+      document
+        .getElementById("startupSelect")
+        .addEventListener("change", (e) => {
+          const selectedId = e.target.value;
 
-  const res = await fetch(`http://localhost:5000/history/${startup_id}`);
-  const data = await res.json();
+          localStorage.setItem("startup_id", selectedId);
 
-  const table = document.getElementById("historyTable");
-  table.innerHTML = "";
+          loadCapTable(selectedId);
+        });
 
-  if (data.length === 0) {
-    table.innerHTML = `
-      <tr>
-        <td colspan="4" class="text-center p-4">
-          No equity history available
+      async function loadHistory() {
+        const startup_id = document.getElementById("startup_id").value;
+        if (!startup_id) return;
+
+        const res = await fetch(`http://localhost:5000/history/${startup_id}`);
+        const data = await res.json();
+
+        const table = document.getElementById("historyTable");
+        table.innerHTML = "";
+
+        if (data.length === 0) return;
+
+        const grouped = {};
+
+        data.forEach((d) => {
+          const key = d.recorded_at;
+          if (!grouped[key]) grouped[key] = [];
+          grouped[key].push(d);
+        });
+
+        const sortedRounds = Object.keys(grouped).sort(
+          (a, b) => new Date(a) - new Date(b),
+        );
+
+        // ===== TABLE =====
+        sortedRounds.forEach((time) => {
+          table.innerHTML += `
+      <tr class="bg-gray-300">
+        <td colspan="4" class="p-2 font-bold">
+          Snapshot: ${sortedRounds.indexOf(time) === 0 ? "Initial" : `Snapshot ${sortedRounds.indexOf(time)}`}
         </td>
-      </tr>`;
-    return;
-  }
-
-  const rounds = {};
-
-  data.forEach((d) => {
-    table.innerHTML += `
-      <tr>
-        <td class="border p-2">${d.round_type}</td>
-        <td class="border p-2">${d.stakeholder}</td>
-        <td class="border p-2">${d.type}</td>
-        <td class="border p-2">${d.equity}%</td>
       </tr>
     `;
 
-    if (!rounds[d.round_type]) {
-      rounds[d.round_type] = { founder: 0, investor: 0 };
-    }
+          // 🔥 remove duplicates per snapshot
+          const unique = {};
 
-    if (d.type === "Founder") {
-      rounds[d.round_type].founder += Number(d.equity);
-    } else {
-      rounds[d.round_type].investor += Number(d.equity);
-    }
-  });
+          grouped[time].forEach((d) => {
+            if (!unique[d.stakeholder]) {
+              unique[d.stakeholder] = {
+                ...d,
+                equity_percentage: Number(d.equity_percentage) || 0,
+              };
+            } else {
+              unique[d.stakeholder].equity_percentage +=
+                Number(d.equity_percentage) || 0;
+            }
+          });
 
-  const labels = Object.keys(rounds);
-  const founderData = labels.map((r) => rounds[r].founder);
-  const investorData = labels.map((r) => rounds[r].investor);
+          // 🔥 render merged data
+          Object.values(unique).forEach((d) => {
+            table.innerHTML += `
+    <tr>
+      <td class="border p-2">${d.round_type || "Initial"}</td>
+      <td class="border p-2">${d.stakeholder}</td>
+      <td class="border p-2">${d.stakeholder_type}</td>
+      <td class="border p-2">${Number(d.equity_percentage).toFixed(2)}%</td>
+    </tr>
+  `;
+          });
+        });
 
-  drawChart(labels, founderData, investorData);
-}
+        // ===== 🔥 CHART CODE (PUT HERE) =====
 
-// CHART
-function drawChart(labels, founderData, investorData) {
-  if (chart) chart.destroy();
+        const rounds = sortedRounds;
 
-  const ctx = document.getElementById("chart");
+        const stakeholders = new Set();
 
-  chart = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: labels,
-      datasets: [
-        {
-          label: "Founder Equity",
-          data: founderData,
+        rounds.forEach((round) => {
+          grouped[round].forEach((r) => {
+            stakeholders.add(r.stakeholder);
+          });
+        });
+
+        const stakeholderList = Array.from(stakeholders);
+
+        const dataMap = {};
+
+        stakeholderList.forEach((name) => {
+          dataMap[name] = new Array(rounds.length).fill(0);
+        });
+
+        rounds.forEach((round, i) => {
+          const unique = {};
+
+          // 🔥 merge duplicates first
+          grouped[round].forEach((r) => {
+            if (!unique[r.stakeholder]) {
+              unique[r.stakeholder] = Number(r.equity_percentage) || 0;
+            } else {
+              unique[r.stakeholder] += Number(r.equity_percentage) || 0;
+            }
+          });
+
+          // 🔥 assign merged values
+          Object.keys(unique).forEach((name) => {
+            dataMap[name][i] = unique[name];
+          });
+
+          // 🔥 carry forward previous values
+          stakeholderList.forEach((name) => {
+            if (i > 0 && dataMap[name][i] === 0) {
+              dataMap[name][i] = dataMap[name][i - 1];
+            }
+          });
+        });
+
+        const labels = rounds.map((r, i) => {
+          return i === 0 ? "Initial" : `Snapshot ${i}`;
+        });
+
+        const datasets = stakeholderList.map((name) => ({
+          label: name,
+          data: dataMap[name],
           borderWidth: 2,
-        },
-        {
-          label: "Investor Equity",
-          data: investorData,
-          borderWidth: 2,
-        },
-      ],
-    },
-  });
-}
-</script>
+        }));
 
-</body>
+        if (chart) chart.destroy();
+
+        const ctx = document.getElementById("chart");
+
+        chart = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: labels,
+            datasets: datasets,
+          },
+        });
+      }
+    </script>
+  </body>
 </html>

@@ -85,15 +85,21 @@
             }
 
             const user = await res.json();
+            console.log("LOGIN RESPONSE:", user);
 
             // 🔥 CLEAR OLD DATA (VERY IMPORTANT)
             localStorage.clear();
 
             // ✅ STORE NEW SESSION
-            localStorage.setItem("user_id", user.user_id);
+            if (!user.user_id) {
+              alert("Login error: user id missing");
+              return;
+            }
+
+            localStorage.setItem("user_id", user.user_id); // 
+            localStorage.setItem("investor_id", user.investor_id); // for investments
             localStorage.setItem("user_role", user.role);
             localStorage.setItem("username", user.username);
-
             // ✅ REDIRECT
             if (user.role === "founder") {
               window.location.href = "founder_dashboard.html";

@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Invest</title>
+    <link rel="icon" href="data:," />
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body class="bg-gray-100 flex">
+    <!-- SIDEBAR -->
+    <div class="w-64 h-screen bg-green-700 text-white p-5">
+      <h2 class="text-2xl font-bold mb-6">Investor Panel</h2>
+
+      <ul class="space-y-3">
+        <li><a href="../investor_dashboard.html">🏠 Dashboard</a></li>
+        <li><a href="browse_startups.html">🔍 Browse Startups</a></li>
+        <li>
+          <a href="invest.html" class="bg-green-600 p-2 rounded block">
+            💰 Invest
+          </a>
+        </li>
+        <li><a href="my_investments.html">📈 My Investments</a></li>
+      </ul>
+    </div>
+
+    <!-- MAIN -->
+    <div class="p-6 w-full">
+      <h1 class="text-2xl font-bold mb-6">Invest in Startups</h1>
+
+      <div class="bg-white p-6 rounded-xl shadow w-1/2">
+        <form id="investForm" class="space-y-4">
+          <select id="round" class="border p-2 rounded w-full"></select>
+
+          <input
+            id="firm_name"
+            type="text"
+            placeholder="Firm Name (e.g. Self / VC Firm)"
+            class="border p-2 rounded w-full"
+            required
+          />
+
+          <input
+            id="country"
+            type="text"
+            placeholder="Country"
+            class="border p-2 rounded w-full"
+            required
+          />
+
+          <input
+            id="amount"
+            type="number"
+            placeholder="Investment Amount"
+            class="border p-2 rounded w-full"
+            required
+          />
+
+          <input
+            id="equity"
+            type="number"
+            placeholder="Equity %"
+            class="border p-2 rounded w-full"
+            required
+          />
+
+          <button class="bg-green-600 text-white p-2 rounded w-full">
+            Invest Now
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const user_id = localStorage.getItem("user_id");
+      const username = localStorage.getItem("username");
+
+      if (!user_id) {
+        window.location.href = "../login.html";
+      }
+
+      // ✅ ensure investor_id exists
+      async function ensureInvestor() {
+        let investor_id = localStorage.getItem("investor_id");
+        const user_id = localStorage.getItem("user_id");
+
+        if (!investor_id && user_id) {
+          const res = await fetch(
+            `http://localhost:5000/getInvestor/${user_id}`,
+          );
+          const data = await res.json();
+
+          if (data.investor_id) {
+            localStorage.setItem("investor_id", data.investor_id);
+          }
+        }
+      }
+
+      // LOAD ROUNDS
+      async function loadRounds() {
+        const res = await fetch("http://localhost:5000/allRounds");
+        const data = await res.json();
+
+        const dropdown = document.getElementById("round");
+
+        dropdown.innerHTML = `<option value="" disabled selected>Select Round</option>`;
+
+        data.forEach((r) => {
+          dropdown.innerHTML += `
+            <option value="${r.round_id}">
+              ${r.startup_name} - ${r.round_type}
+            </option>
+          `;
+        });
+      }
+
+      let isSubmitting = false;
+
+      document
+        .getElementById("investForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          if (isSubmitting) return;
+          isSubmitting = true;
+
+          const round_id = document.getElementById("round").value;
+
+          if (!round_id) {
+            alert("Please select a round");
+            isSubmitting = false;
+            return;
+          }
+
+          const amount = document.getElementById("amount").value;
+          const equity = document.getElementById("equity").value;
+          const firm_name = document.getElementById("firm_name").value;
+          const country = document.getElementById("country").value;
+
+          try {
+            const res = await fetch("http://localhost:5000/addInvestment", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                round_id,
+                user_id,
+                username,
+                firm_name,
+                country,
+                amount,
+                equity,
+              }),
+            });
+
+            alert(await res.text());
+
+            // 🔥 refresh page after investment
+            window.location.reload();
+          } catch (err) {
+            console.error(err);
+          } finally {
+            isSubmitting = false;
+          }
+        });
+
+      // ✅ correct execution order
+      (async () => {
+        await ensureInvestor();
+        loadRounds();
+      })();
+    </script>
+  </body>
+</html>

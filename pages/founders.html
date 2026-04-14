@@ -8,26 +8,49 @@
   </head>
 
   <body class="bg-gray-100">
-
     <div class="flex">
-
       <!-- SIDEBAR -->
       <div class="w-64 h-screen bg-blue-700 text-white p-5">
         <h2 class="text-2xl font-bold mb-6">Founder Panel</h2>
 
         <ul class="space-y-3">
-          <li><a href="../founder_dashboard.html" class="block p-2 hover:bg-blue-600 rounded">🏠 Dashboard</a></li>
-          <li><a href="startups.html" class="block p-2 hover:bg-blue-600 rounded">🚀 My Startups</a></li>
-          <li><a href="founders.html" class="block p-2 bg-blue-600 rounded">👥 Founders</a></li>
-          <li><a href="funding.html" class="block p-2 hover:bg-blue-600 rounded">💸 Funding</a></li>
-          <li><a href="captable.html" class="block p-2 hover:bg-blue-600 rounded">📊 Cap Table</a></li>
-          <li><a href="history.html" class="block p-2 hover:bg-blue-600 rounded">🕒 History</a></li>
+          <li>
+            <a
+              href="../founder_dashboard.html"
+              class="block p-2 hover:bg-blue-600 rounded"
+              >🏠 Dashboard</a
+            >
+          </li>
+          <li>
+            <a href="startups.html" class="block p-2 hover:bg-blue-600 rounded"
+              >🚀 My Startups</a
+            >
+          </li>
+          <li>
+            <a href="founders.html" class="block p-2 bg-blue-600 rounded"
+              >👥 Founders</a
+            >
+          </li>
+          <li>
+            <a href="funding.html" class="block p-2 hover:bg-blue-600 rounded"
+              >💸 Funding</a
+            >
+          </li>
+          <li>
+            <a href="captable.html" class="block p-2 hover:bg-blue-600 rounded"
+              >📊 Cap Table</a
+            >
+          </li>
+          <li>
+            <a href="history.html" class="block p-2 hover:bg-blue-600 rounded"
+              >🕒 History</a
+            >
+          </li>
         </ul>
       </div>
 
-      <!-- MAIN CONTENT -->
+      <!-- MAIN -->
       <div class="p-6 w-full">
-
         <h1 class="text-2xl font-bold mb-6">Founder Management</h1>
 
         <!-- FORM -->
@@ -35,15 +58,34 @@
           <h2 class="text-lg font-semibold mb-4">Add Founder</h2>
 
           <form id="founderForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input id="name" type="text" placeholder="Founder Name" class="border p-2 rounded" required />
-            <input id="role" type="text" placeholder="Role (CEO/CTO)" class="border p-2 rounded" />
-            <input id="equity" type="number" placeholder="Initial Equity (%)" class="border p-2 rounded" />
+            <input
+              id="name"
+              type="text"
+              placeholder="Founder Name"
+              class="border p-2 rounded"
+              required
+            />
+            <input
+              id="role"
+              type="text"
+              placeholder="Role (CEO/CTO)"
+              class="border p-2 rounded"
+            />
+            <input
+              id="equity"
+              type="number"
+              placeholder="Initial Equity (%)"
+              class="border p-2 rounded"
+              required
+            />
 
-            <select id="startup_id" class="border p-2 rounded">
+            <select id="startup_id" class="border p-2 rounded" required>
               <option value="">Select Startup</option>
             </select>
 
-            <button class="bg-blue-600 text-white p-2 rounded col-span-2 hover:bg-blue-700">
+            <button
+              class="bg-blue-600 text-white p-2 rounded col-span-2 hover:bg-blue-700"
+            >
               Add Founder
             </button>
           </form>
@@ -66,106 +108,138 @@
             <tbody id="founderTable"></tbody>
           </table>
         </div>
-
       </div>
     </div>
 
     <script>
       window.onload = async function () {
+        const user_id = localStorage.getItem("user_id");
+
+        if (!user_id) {
+          alert("Please login first");
+          window.location.href = "../login.html";
+          return;
+        }
+
+        // ✅ Load data
         await loadStartups();
         await loadFounders();
 
+        // ✅ Restore selected startup
+        const current = localStorage.getItem("startup_id");
+        if (current) {
+          document.getElementById("startup_id").value = current;
+        }
+
+        // ✅ Handle form submit
         document
           .getElementById("founderForm")
-          .addEventListener("submit", async function (e) {
-            e.preventDefault();
+          .addEventListener("submit", addFounder);
 
-            const name = document.getElementById("name").value;
-            const role = document.getElementById("role").value;
-            const equity = document.getElementById("equity").value;
-            const startup_id = document.getElementById("startup_id").value;
-
-            if (!startup_id) {
-              alert("Please select a startup");
-              return;
-            }
-
-            try {
-              const res = await fetch("http://localhost:5000/addFounder", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name, role, equity, startup_id }),
-              });
-
-              if (!res.ok) throw new Error("Failed");
-
-              alert("Founder added ✅");
-              document.getElementById("founderForm").reset();
-              loadFounders();
-            } catch (err) {
-              alert("Error adding founder ❌");
-              console.error(err);
-            }
+        // ✅ Sync startup globally
+        document
+          .getElementById("startup_id")
+          .addEventListener("change", (e) => {
+            localStorage.setItem("startup_id", e.target.value);
           });
       };
 
-      // ✅ LOAD STARTUPS (FIXED)
+      // LOAD STARTUPS
       async function loadStartups() {
-        try {
-          const user_id = localStorage.getItem("user_id");
+        const user_id = localStorage.getItem("user_id");
 
-          if (!user_id) {
-            alert("Please login again");
-            window.location.href = "../login.html";
-            return;
+        const res = await fetch(`http://localhost:5000/startups/${user_id}`);
+        const data = await res.json();
+
+        const dropdown = document.getElementById("startup_id");
+        dropdown.innerHTML = `<option value="">Select Startup</option>`;
+
+        data.forEach((s) => {
+          dropdown.innerHTML += `
+      <option value="${s.startup_id}">
+        ${s.startup_name}
+      </option>`;
+        });
+
+        // ✅ NOW safe to use dropdown
+        const saved = localStorage.getItem("startup_id");
+        if (saved) dropdown.value = saved;
+      }
+
+      // ADD FOUNDER
+      async function addFounder(e) {
+        e.preventDefault();
+
+        const name = document.getElementById("name").value;
+        const role = document.getElementById("role").value;
+        const equity = document.getElementById("equity").value;
+        const startup_id = document.getElementById("startup_id").value;
+
+        if (!startup_id) {
+          alert("Select startup");
+          return;
+        }
+
+        const res = await fetch("http://localhost:5000/addFounder", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            startup_id,
+            founders: [
+              {
+                name,
+                role,
+                equity,
+              },
+            ],
+          }),
+        });
+
+        if (res.ok) {
+          alert("Founder added ✅");
+          const current = localStorage.getItem("startup_id");
+
+          document.getElementById("founderForm").reset();
+
+          if (current) {
+            document.getElementById("startup_id").value = current;
           }
-
-          const res = await fetch(`http://localhost:5000/startups/${user_id}`);
-
-          if (!res.ok) throw new Error("API failed");
-
-          const data = await res.json();
-
-          const dropdown = document.getElementById("startup_id");
-          dropdown.innerHTML = `<option value="">Select Startup</option>`;
-
-          data.forEach((s) => {
-            dropdown.innerHTML += `
-              <option value="${s.startup_id}">
-                ${s.startup_name}
-              </option>
-            `;
-          });
-        } catch (err) {
-          console.error("Startup load error:", err);
+          loadFounders();
+        } else {
+          const msg = await res.text();
+          alert(msg);
         }
       }
 
-      // ✅ LOAD FOUNDERS
+      // LOAD FOUNDERS (FIXED → FILTER BY USER)
       async function loadFounders() {
-        try {
-          const res = await fetch("http://localhost:5000/founders");
+        const user_id = localStorage.getItem("user_id");
 
-          if (!res.ok) throw new Error("API failed");
+        const res = await fetch(`http://localhost:5000/founders/${user_id}`);
+        const data = await res.json();
 
-          const data = await res.json();
+        const table = document.getElementById("founderTable");
+        table.innerHTML = "";
 
-          const table = document.getElementById("founderTable");
-          table.innerHTML = "";
-
-          data.forEach((f) => {
-            table.innerHTML += `
-              <tr>
-                <td class="p-2 border">${f.founder_name}</td>
-                <td class="p-2 border">${f.founder_role}</td>
-                <td class="p-2 border">${f.startup_name}</td>
-                <td class="p-2 border">${f.initial_equity}%</td>
-              </tr>
-            `;
-          });
-        } catch (err) {
-          console.error("Founder load error:", err);
+        if (data.length === 0) {
+          table.innerHTML = `
+      <tr>
+        <td colspan="4" class="text-center p-4">
+          No founders found
+        </td>
+      </tr>`;
+          return;
         }
+
+        data.forEach((f) => {
+          table.innerHTML += `
+      <tr>
+        <td class="p-2 border">${f.founder_name}</td>
+        <td class="p-2 border">${f.founder_role}</td>
+        <td class="p-2 border">${f.startup_name}</td>
+        <td class="p-2 border">${f.initial_equity}%</td>
+      </tr>`;
+        });
       }
     </script>
   </body>

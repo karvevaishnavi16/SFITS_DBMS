@@ -1,187 +1,222 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Investments - SFITS</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Investments - SFITS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
 
-<body class="bg-gray-100">
+  <body class="bg-gray-100">
+    <div class="flex">
+      <!-- SIDEBAR -->
+      <div class="w-64 h-screen bg-blue-700 text-white p-5">
+        <h2 class="text-2xl font-bold mb-6">Founder Panel</h2>
 
-<div class="flex">
+        <ul class="space-y-3">
+          <li>
+            <a
+              href="../founder_dashboard.html"
+              class="block p-2 hover:bg-blue-600 rounded"
+              >🏠 Dashboard</a
+            >
+          </li>
+          <li>
+            <a href="startups.html" class="block p-2 hover:bg-blue-600 rounded"
+              >🚀 My Startups</a
+            >
+          </li>
+          <li>
+            <a href="founders.html" class="block p-2 hover:bg-blue-600 rounded"
+              >👥 Founders</a
+            >
+          </li>
+          <li>
+            <a href="funding.html" class="block p-2 hover:bg-blue-600 rounded"
+              >💸 Funding</a
+            >
+          </li>
+          <li>
+            <a href="captable.html" class="block p-2 hover:bg-blue-600 rounded"
+              >📊 Cap Table</a
+            >
+          </li>
+          <li>
+            <a href="history.html" class="block p-2 hover:bg-blue-600 rounded"
+              >🕒 History</a
+            >
+          </li>
+          <li>
+            <a href="investments.html" class="block p-2 bg-blue-600 rounded"
+              >💼 Investments</a
+            >
+          </li>
+        </ul>
+      </div>
 
-  <!-- SIDEBAR -->
-  <div class="w-64 h-screen bg-blue-700 text-white p-5">
-    <h2 class="text-2xl font-bold mb-6">Founder Panel</h2>
+      <!-- MAIN CONTENT -->
+      <div class="p-6 w-full">
+        <h1 class="text-2xl font-bold mb-6">Investments</h1>
 
-    <ul class="space-y-3">
-      <li><a href="../founder_dashboard.html" class="block p-2 hover:bg-blue-600 rounded">🏠 Dashboard</a></li>
-      <li><a href="startups.html" class="block p-2 hover:bg-blue-600 rounded">🚀 My Startups</a></li>
-      <li><a href="founders.html" class="block p-2 hover:bg-blue-600 rounded">👥 Founders</a></li>
-      <li><a href="funding.html" class="block p-2 hover:bg-blue-600 rounded">💸 Funding</a></li>
-      <li><a href="captable.html" class="block p-2 hover:bg-blue-600 rounded">📊 Cap Table</a></li>
-      <li><a href="history.html" class="block p-2 hover:bg-blue-600 rounded">🕒 History</a></li>
-      <li><a href="investments.html" class="block p-2 bg-blue-600 rounded">💼 Investments</a></li>
-    </ul>
-  </div>
+        <!-- FORM -->
+        <div class="bg-white p-6 rounded-xl shadow mb-6">
+          <form
+            id="investmentForm"
+            class="grid grid-cols-1 md:grid-cols-2 gap-4"
+          >
+            <select id="round_id" class="border p-2 rounded" required></select>
 
-  <!-- MAIN CONTENT -->
-  <div class="p-6 w-full">
+            <select
+              id="investor_id"
+              class="border p-2 rounded"
+              required
+            ></select>
 
-    <h1 class="text-2xl font-bold mb-6">Investments</h1>
+            <input
+              id="amount"
+              type="number"
+              placeholder="Amount Invested"
+              class="border p-2 rounded"
+              required
+            />
 
-    <!-- FORM -->
-    <div class="bg-white p-6 rounded-xl shadow mb-6">
-      <form id="investmentForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input
+              id="equity"
+              type="number"
+              placeholder="Equity (%)"
+              class="border p-2 rounded"
+              required
+            />
 
-        <select id="round_id" class="border p-2 rounded" required></select>
+            <button
+              class="bg-blue-600 text-white p-2 rounded col-span-2 hover:bg-blue-700"
+            >
+              Add Investment
+            </button>
+          </form>
+        </div>
 
-        <select id="investor_id" class="border p-2 rounded" required></select>
-
-        <input
-          id="amount"
-          type="number"
-          placeholder="Amount Invested"
-          class="border p-2 rounded"
-          required
-        />
-
-        <input
-          id="equity"
-          type="number"
-          placeholder="Equity (%)"
-          class="border p-2 rounded"
-          required
-        />
-
-        <button class="bg-blue-600 text-white p-2 rounded col-span-2 hover:bg-blue-700">
-          Add Investment
-        </button>
-      </form>
+        <!-- TABLE -->
+        <div class="bg-white p-6 rounded-xl shadow">
+          <table class="w-full border">
+            <thead class="bg-gray-200">
+              <tr>
+                <th class="p-2 border">Investor</th>
+                <th class="p-2 border">Round</th>
+                <th class="p-2 border">Amount</th>
+                <th class="p-2 border">Equity</th>
+              </tr>
+            </thead>
+            <tbody id="investmentTable"></tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
-    <!-- TABLE -->
-    <div class="bg-white p-6 rounded-xl shadow">
-      <table class="w-full border">
-        <thead class="bg-gray-200">
-          <tr>
-            <th class="p-2 border">Investor</th>
-            <th class="p-2 border">Round</th>
-            <th class="p-2 border">Amount</th>
-            <th class="p-2 border">Equity</th>
-          </tr>
-        </thead>
-        <tbody id="investmentTable"></tbody>
-      </table>
-    </div>
+    <script>
+      window.onload = async function () {
+        const user_id = localStorage.getItem("user_id");
 
-  </div>
-</div>
+        if (!user_id) {
+          alert("Please login first");
+          window.location.href = "../login.html";
+          return;
+        }
 
-<script>
-window.onload = async function () {
-  const user_id = localStorage.getItem("user_id");
+        await loadData();
+        await loadInvestments();
 
-  if (!user_id) {
-    alert("Please login first");
-    window.location.href = "../login.html";
-    return;
-  }
+        document
+          .getElementById("investmentForm")
+          .addEventListener("submit", addInvestment);
+      };
 
-  await loadData();
-  await loadInvestments();
+      // LOAD ROUNDS + INVESTORS
+      async function loadData() {
+        const user_id = localStorage.getItem("user_id");
 
-  document
-    .getElementById("investmentForm")
-    .addEventListener("submit", addInvestment);
-};
+        const roundsRes = await fetch(
+          `http://localhost:5000/funding/${user_id}`,
+        );
+        const investorsRes = await fetch("http://localhost:5000/investors");
 
-// LOAD ROUNDS + INVESTORS
-async function loadData() {
-  const user_id = localStorage.getItem("user_id");
+        const rounds = await roundsRes.json();
+        const investors = await investorsRes.json();
 
-  const roundsRes = await fetch(`http://localhost:5000/funding/${user_id}`);
-  const investorsRes = await fetch("http://localhost:5000/investors");
+        const roundDropdown = document.getElementById("round_id");
+        const investorDropdown = document.getElementById("investor_id");
 
-  const rounds = await roundsRes.json();
-  const investors = await investorsRes.json();
+        roundDropdown.innerHTML = `<option value="">Select Round</option>`;
+        investorDropdown.innerHTML = `<option value="">Select Investor</option>`;
 
-  const roundDropdown = document.getElementById("round_id");
-  const investorDropdown = document.getElementById("investor_id");
-
-  roundDropdown.innerHTML = `<option value="">Select Round</option>`;
-  investorDropdown.innerHTML = `<option value="">Select Investor</option>`;
-
-  rounds.forEach((r) => {
-    roundDropdown.innerHTML += `
+        rounds.forEach((r) => {
+          roundDropdown.innerHTML += `
       <option value="${r.round_id}">
         ${r.startup_name} - ${r.round_type}
       </option>`;
-  });
+        });
 
-  investors.forEach((i) => {
-    investorDropdown.innerHTML += `
+        investors.forEach((i) => {
+          investorDropdown.innerHTML += `
       <option value="${i.investor_id}">
         ${i.investor_name}
       </option>`;
-  });
-}
+        });
+      }
 
-// ADD INVESTMENT
-async function addInvestment(e) {
-  e.preventDefault();
+      // ADD INVESTMENT
+      async function addInvestment(e) {
+        e.preventDefault();
 
-  const round_id = document.getElementById("round_id").value;
-  const investor_id = document.getElementById("investor_id").value;
-  const amount = document.getElementById("amount").value;
-  const equity = document.getElementById("equity").value;
+        const round_id = document.getElementById("round_id").value;
+        const investor_id = document.getElementById("investor_id").value;
+        const amount = document.getElementById("amount").value;
+        const equity = document.getElementById("equity").value;
 
-  const res = await fetch("http://localhost:5000/addInvestment", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ round_id, investor_id, amount, equity }),
-  });
+        const res = await fetch("http://localhost:5000/addInvestment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ round_id, investor_id, amount, equity }),
+        });
 
-  if (res.ok) {
-    alert("Investment added ✅");
-    document.getElementById("investmentForm").reset();
-    loadInvestments();
-  } else {
-    alert("Error adding investment ❌");
-  }
-}
+        if (res.ok) {
+          alert("Investment added ✅");
+          document.getElementById("investmentForm").reset();
+          loadInvestments();
+        } else {
+          alert("Error adding investment ❌");
+        }
+      }
 
-// LOAD INVESTMENTS
-async function loadInvestments() {
-  const user_id = localStorage.getItem("user_id");
+      // LOAD INVESTMENTS
+      async function loadInvestments() {
+        const user_id = localStorage.getItem("user_id");
 
-  const res = await fetch(`http://localhost:5000/investments/${user_id}`);
-  const data = await res.json();
+        const res = await fetch(`http://localhost:5000/investments/${user_id}`);
+        const data = await res.json();
 
-  const table = document.getElementById("investmentTable");
-  table.innerHTML = "";
+        const table = document.getElementById("investmentTable");
+        table.innerHTML = "";
 
-  if (data.length === 0) {
-    table.innerHTML = `
+        if (data.length === 0) {
+          table.innerHTML = `
       <tr>
         <td colspan="4" class="text-center p-4">
           No investments available
         </td>
       </tr>`;
-    return;
-  }
+          return;
+        }
 
-  data.forEach((i) => {
-    table.innerHTML += `
+        data.forEach((i) => {
+          table.innerHTML += `
       <tr>
         <td class="p-2 border">${i.investor_name}</td>
         <td class="p-2 border">${i.round_type}</td>
         <td class="p-2 border">${i.amount_invested}</td>
         <td class="p-2 border">${i.equity_acquired}%</td>
       </tr>`;
-  });
-}
-</script>
-
-</body>
+        });
+      }
+    </script>
+  </body>
 </html>

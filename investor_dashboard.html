@@ -1,66 +1,247 @@
 <!doctype html>
+
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <title>Investor Dashboard</title>
+    <link rel="icon" href="data:," />
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
 
   <body class="bg-gray-100">
     <div class="flex">
-      <!-- Sidebar -->
+      <!-- SIDEBAR -->
+
       <div class="w-64 h-screen bg-green-700 text-white p-5">
         <h2 class="text-2xl font-bold mb-6">Investor Panel</h2>
 
         <ul class="space-y-3">
           <li>
-            <a href="#" class="block p-2 hover:bg-green-600 rounded"
-              >🏠 Dashboard</a
+            <a
+              href="investor_dashboard.html"
+              class="block p-2 bg-green-600 rounded"
             >
+              🏠 Dashboard
+            </a>
           </li>
           <li>
             <a
-              href="pages/startups.html"
+              href="investor_pages/browse_startups.html"
               class="block p-2 hover:bg-green-600 rounded"
-              >🔍 Browse Startups</a
             >
+              🔍 Browse Startups
+            </a>
           </li>
           <li>
             <a
-              href="pages/investments.html"
+              href="investor_pages/invest.html"
               class="block p-2 hover:bg-green-600 rounded"
-              >💵 Invest</a
             >
+              💵 Invest
+            </a>
           </li>
           <li>
-            <a href="#" class="block p-2 hover:bg-green-600 rounded"
-              >📈 My Investments</a
+            <a
+              href="investor_pages/my_investments.html"
+              class="block p-2 hover:bg-green-600 rounded"
             >
+              📈 My Investments
+            </a>
           </li>
         </ul>
       </div>
 
-      <!-- Main -->
+      <!-- MAIN CONTENT -->
+
       <div class="p-6 w-full">
         <h1 class="text-2xl font-bold mb-4">Welcome, Investor 💰</h1>
 
-        <div class="grid grid-cols-3 gap-4">
-          <div class="bg-white p-4 rounded shadow">
-            <h2>Total Investments</h2>
-            <p class="text-xl font-bold">$500K</p>
+        <!-- CARDS -->
+        <div class="grid grid-cols-3 gap-6 mb-6">
+          <div
+            class="bg-white p-5 rounded-xl shadow hover:shadow-lg transition"
+          >
+            <h3 class="text-gray-500">Total Investments</h3>
+            <p id="totalInvested" class="text-2xl font-bold text-green-700">
+              ₹0
+            </p>
           </div>
 
-          <div class="bg-white p-4 rounded shadow">
-            <h2>Portfolio</h2>
-            <p class="text-xl font-bold">5 Startups</p>
+          <div
+            class="bg-white p-5 rounded-xl shadow hover:shadow-lg transition"
+          >
+            <h3 class="text-gray-500">Portfolio</h3>
+            <p id="totalStartups" class="text-2xl font-bold text-blue-600">0</p>
           </div>
 
-          <div class="bg-white p-4 rounded shadow">
-            <h2>Returns</h2>
-            <p class="text-xl font-bold">+20%</p>
+          <div
+            class="bg-white p-5 rounded-xl shadow hover:shadow-lg transition"
+          >
+            <h3 class="text-gray-500">Total Equity</h3>
+            <p id="totalEquity" class="text-2xl font-bold text-purple-600">
+              0%
+            </p>
           </div>
+        </div>
+
+        <!-- CHART -->
+        <div class="bg-white p-6 rounded-xl shadow mt-6">
+          <h2 class="text-lg font-semibold mb-4">Investment Distribution</h2>
+          <canvas id="investmentChart"></canvas>
         </div>
       </div>
     </div>
+
+    <script>
+      let chart;
+
+      const user_id = localStorage.getItem("user_id");
+
+      if (!user_id) {
+        window.location.href = "login.html";
+      }
+
+      // ✅ ensure investor exists
+      async function ensureInvestor() {
+        const user_id = localStorage.getItem("user_id");
+
+        const res = await fetch(`http://localhost:5000/getInvestor/${user_id}`);
+
+        const data = await res.json();
+
+        if (data.investor_id) {
+          localStorage.setItem("investor_id", data.investor_id);
+          console.log("Investor ID updated:", data.investor_id);
+        }
+      }
+
+      // 🔹 DASHBOARD DATA
+      async function loadDashboard() {
+        try {
+          const investor_id = localStorage.getItem("investor_id");
+
+          console.log("Investor ID:", investor_id);
+
+          // ✅ HANDLE FIRST-TIME USER
+          if (!investor_id) {
+            document.getElementById("totalInvested").innerText = "₹0";
+            document.getElementById("totalStartups").innerText = "0";
+            document.getElementById("totalEquity").innerText = "0%";
+            return;
+          }
+
+          const res = await fetch(
+            `http://localhost:5000/investorSummary/${investor_id}`,
+          );
+
+          const data = await res.json();
+
+          document.getElementById("totalInvested").innerText =
+            "₹" + Number(data.total_invested || 0).toLocaleString();
+
+          document.getElementById("totalStartups").innerText =
+            data.total_startups || 0;
+
+          document.getElementById("totalEquity").innerText =
+            Number(data.total_equity || 0).toFixed(2) + "%";
+        } catch (err) {
+          console.error("Dashboard error:", err);
+        }
+      }
+      async function loadStartups() {
+        const user_id = localStorage.getItem("user_id");
+
+        const res = await fetch(`http://localhost:5000/startups/${user_id}`);
+        const data = await res.json();
+
+        const dropdown = document.getElementById("startupSelect");
+        dropdown.innerHTML = `<option value="">Select Startup</option>`;
+
+        data.forEach((s) => {
+          dropdown.innerHTML += `
+      <option value="${s.startup_id}">
+        ${s.startup_name}
+      </option>`;
+        });
+
+        // ✅ AFTER loop (IMPORTANT)
+        if (data.length > 0) {
+          const firstId = data[0].startup_id;
+
+          dropdown.value = firstId;
+
+          // 🔥 STORE globally
+          localStorage.setItem("startup_id", firstId);
+
+          // 🔥 LOAD DATA
+          loadCapTable(firstId);
+        }
+      }
+      // 🔹 CHART
+      async function loadChart() {
+        try {
+          const investor_id = localStorage.getItem("investor_id");
+
+          console.log("Investor ID:", investor_id);
+
+          const res = await fetch(
+            `http://localhost:5000/myInvestments/${investor_id}`,
+          );
+
+          const data = await res.json();
+
+          const grouped = {};
+
+          data.forEach((i) => {
+            if (!grouped[i.startup_name]) {
+              grouped[i.startup_name] = 0;
+            }
+            grouped[i.startup_name] += Number(i.amount_invested);
+          });
+
+          const labels = Object.keys(grouped);
+          const values = Object.values(grouped);
+
+          if (labels.length === 0) {
+            document.getElementById("investmentChart").parentElement.innerHTML =
+              "<p class='text-gray-500'>No investments yet</p>";
+            return;
+          }
+
+          const ctx = document.getElementById("investmentChart");
+
+          if (chart) chart.destroy();
+
+          chart = new Chart(ctx, {
+            type: "pie",
+            data: {
+              labels: labels,
+              datasets: [
+                {
+                  data: values,
+                  backgroundColor: [
+                    "#22c55e",
+                    "#3b82f6",
+                    "#f59e0b",
+                    "#ef4444",
+                    "#8b5cf6",
+                  ],
+                },
+              ],
+            },
+          });
+        } catch (err) {
+          console.error("Chart error:", err);
+        }
+      }
+
+      // ✅ CORRECT EXECUTION FLOW
+      (async () => {
+        await ensureInvestor();
+        await loadDashboard();
+        await loadChart();
+      })();
+    </script>
   </body>
 </html>

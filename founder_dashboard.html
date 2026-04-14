@@ -63,6 +63,17 @@
           <div class="bg-white p-5 rounded-xl shadow">
             <h2 class="text-gray-500 text-sm">Total Funding</h2>
             <p id="funding" class="text-2xl font-bold text-blue-600">-</p>
+
+            <!-- 🔥 PROGRESS BAR -->
+            <div class="w-full bg-gray-200 rounded-full h-3 mt-2">
+              <div
+                id="fundingBar"
+                class="bg-blue-600 h-3 rounded-full"
+                style="width: 0%"
+              ></div>
+            </div>
+
+            <p id="fundingPercent" class="text-sm text-gray-600 mt-1">0%</p>
           </div>
 
           <div class="bg-white p-5 rounded-xl shadow">
@@ -117,43 +128,68 @@
 
         loadDashboard(startup_id);
       };
+      function formatCurrency(value) {
+        if (!value) return "₹0";
 
-      async function loadDashboard(startup_id) {
-        try {
-          const res = await fetch(
-            `http://localhost:5000/startupDashboard/${startup_id}`,
-          );
-
-          if (!res.ok) throw new Error("Dashboard API failed");
-
-          const data = await res.json();
-
-          // 💰 FUNDING
-          const funding = data.total_funding || 0;
-          document.getElementById("funding").innerText = funding
-            ? "₹" + (funding / 1000000).toFixed(2) + "M"
-            : "No funding";
-
-          // 👥 INVESTORS
-          document.getElementById("investors").innerText =
-            data.total_investors || 0;
-
-          // 📊 EQUITY
-          document.getElementById("equity").innerText =
-            (data.founder_equity || 0) + "%";
-
-          // EXTRA
-          document.getElementById("stage").innerText = data.stage || "N/A";
-
-          document.getElementById("round").innerText =
-            data.latest_round || "N/A";
-
-          document.getElementById("valuation").innerText = data.valuation
-            ? "₹" + (data.valuation / 1000000).toFixed(2) + "M"
-            : "N/A";
-        } catch (err) {
-          console.error("Dashboard error:", err);
+        if (value >= 1000000) {
+          return "₹" + (value / 1000000).toFixed(2) + "M";
+        } else if (value >= 1000) {
+          return "₹" + (value / 1000).toFixed(1) + "K";
+        } else {
+          return "₹" + value;
         }
+      }
+
+      async function loadDashboard() {
+        const startup_id = localStorage.getItem("startup_id");
+
+        const res = await fetch(
+          `http://localhost:5000/startupDashboard/${startup_id}`,
+        );
+
+        const data = await res.json();
+
+        console.log("Dashboard:", data);
+
+        const raised = Number(data.total_funding ?? 0);
+        const target = Number(data.target_funding ?? 0);
+
+        // 💰 FUNDING
+        document.getElementById("funding").innerText =
+          `${formatCurrency(raised)} / ${formatCurrency(target)}`;
+
+        // 📊 PROGRESS
+        const percent = target > 0 ? (raised / target) * 100 : 0;
+
+        document.getElementById("fundingPercent").innerText =
+          percent.toFixed(1) + "% funded";
+
+        document.getElementById("fundingBar").style.width =
+          Math.min(percent, 100) + "%";
+
+        // 👥 INVESTORS
+        document.getElementById("investors").innerText =
+          data.total_investors ?? 0;
+
+        // 👩‍💻 FOUNDER EQUITY
+        document.getElementById("equity").innerText =
+          data.founder_equity != null
+            ? Number(data.founder_equity).toFixed(2) + "%"
+            : "-";
+
+        // 🚀 STAGE
+        document.getElementById("stage").innerText =
+          data.stage != null ? data.stage : "-";
+
+        // 🧾 ROUND
+        document.getElementById("round").innerText =
+          data.latest_round != null ? data.latest_round : "-";
+
+        // 💎 VALUATION
+        document.getElementById("valuation").innerText =
+          data.valuation != null && data.valuation > 0
+            ? formatCurrency(data.valuation)
+            : "-";
       }
     </script>
   </body>
