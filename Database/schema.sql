@@ -35,11 +35,14 @@ CREATE TABLE IF NOT EXISTS STARTUP (
 CREATE TABLE IF NOT EXISTS FOUNDER (
     founder_id VARCHAR(5) PRIMARY KEY,
     founder_name VARCHAR(100) NOT NULL,
+    founder_email VARCHAR(100) NULL,
     founder_role VARCHAR(50) NOT NULL,
     initial_equity DECIMAL(5,2) NOT NULL,
     CONSTRAINT chk_initial_equity CHECK (initial_equity > 0 AND initial_equity <= 100),
     startup_id VARCHAR(5) NOT NULL,
-    FOREIGN KEY (startup_id) REFERENCES STARTUP(startup_id)
+    user_id INT NULL,
+    FOREIGN KEY (startup_id) REFERENCES STARTUP(startup_id),
+    FOREIGN KEY (user_id) REFERENCES USERS(user_id)
 );
 
 -- Table 4: INVESTOR

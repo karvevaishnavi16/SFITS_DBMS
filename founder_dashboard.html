@@ -140,56 +140,73 @@
         }
       }
 
-      async function loadDashboard() {
-        const startup_id = localStorage.getItem("startup_id");
+      async function loadDashboard(startup_id) {
+        if (!startup_id) {
+          startup_id = localStorage.getItem("startup_id");
+        }
 
-        const res = await fetch(
-          `http://localhost:5000/startupDashboard/${startup_id}`,
-        );
+        try {
+          const res = await fetch(
+            `http://localhost:5000/startupDashboard/${startup_id}`,
+          );
 
-        const data = await res.json();
+          if (!res.ok) {
+            const errorText = await res.text();
+            throw new Error(`Server error: ${res.status} ${errorText}`);
+          }
 
-        console.log("Dashboard:", data);
+          const data = await res.json();
 
-        const raised = Number(data.total_funding ?? 0);
-        const target = Number(data.target_funding ?? 0);
+          console.log("Dashboard:", data);
 
-        // 💰 FUNDING
-        document.getElementById("funding").innerText =
-          `${formatCurrency(raised)} / ${formatCurrency(target)}`;
+          if (!data) {
+            console.error("No data returned from endpoint");
+            return;
+          }
 
-        // 📊 PROGRESS
-        const percent = target > 0 ? (raised / target) * 100 : 0;
+          const raised = Number(data.total_funding ?? 0);
+          const target = Number(data.target_funding ?? 0);
 
-        document.getElementById("fundingPercent").innerText =
-          percent.toFixed(1) + "% funded";
+          // 💰 FUNDING
+          document.getElementById("funding").innerText =
+            `${formatCurrency(raised)} / ${formatCurrency(target)}`;
 
-        document.getElementById("fundingBar").style.width =
-          Math.min(percent, 100) + "%";
+          // 📊 PROGRESS
+          const percent = target > 0 ? (raised / target) * 100 : 0;
 
-        // 👥 INVESTORS
-        document.getElementById("investors").innerText =
-          data.total_investors ?? 0;
+          document.getElementById("fundingPercent").innerText =
+            percent.toFixed(1) + "% funded";
 
-        // 👩‍💻 FOUNDER EQUITY
-        document.getElementById("equity").innerText =
-          data.founder_equity != null
-            ? Number(data.founder_equity).toFixed(2) + "%"
-            : "-";
+          document.getElementById("fundingBar").style.width =
+            Math.min(percent, 100) + "%";
 
-        // 🚀 STAGE
-        document.getElementById("stage").innerText =
-          data.stage != null ? data.stage : "-";
+          // 👥 INVESTORS
+          document.getElementById("investors").innerText =
+            data.total_investors ?? 0;
 
-        // 🧾 ROUND
-        document.getElementById("round").innerText =
-          data.latest_round != null ? data.latest_round : "-";
+          // 👩‍💻 FOUNDER EQUITY
+          document.getElementById("equity").innerText =
+            data.founder_equity != null
+              ? Number(data.founder_equity).toFixed(2) + "%"
+              : "-";
 
-        // 💎 VALUATION
-        document.getElementById("valuation").innerText =
-          data.valuation != null && data.valuation > 0
-            ? formatCurrency(data.valuation)
-            : "-";
+          // 🚀 STAGE
+          document.getElementById("stage").innerText =
+            data.stage != null ? data.stage : "-";
+
+          // 🧾 ROUND
+          document.getElementById("round").innerText =
+            data.latest_round != null ? data.latest_round : "-";
+
+          // 💎 VALUATION
+          document.getElementById("valuation").innerText =
+            data.valuation != null && data.valuation > 0
+              ? formatCurrency(data.valuation)
+              : "-";
+        } catch (err) {
+          console.error("Error loading dashboard:", err);
+          alert("Failed to load startup dashboard: " + err.message);
+        }
       }
     </script>
   </body>

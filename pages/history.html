@@ -120,16 +120,6 @@
           loadHistory();
         }
       }
-      document
-        .getElementById("startupSelect")
-        .addEventListener("change", (e) => {
-          const selectedId = e.target.value;
-
-          localStorage.setItem("startup_id", selectedId);
-
-          loadCapTable(selectedId);
-        });
-
       async function loadHistory() {
         const startup_id = document.getElementById("startup_id").value;
         if (!startup_id) return;
@@ -143,23 +133,63 @@
         if (data.length === 0) return;
 
         const grouped = {};
+        const roundMeta = {};
+        const latestRoundStakeholder = {};
 
         data.forEach((d) => {
-          const key = d.recorded_at;
-          if (!grouped[key]) grouped[key] = [];
-          grouped[key].push(d);
+          const roundKey = d.round_id;
+          const stakeholderKey = `${d.round_id}:${d.stakeholder}`;
+          const currentDate = new Date(d.recorded_at).getTime();
+
+          if (
+            !latestRoundStakeholder[stakeholderKey] ||
+            currentDate >
+              new Date(
+                latestRoundStakeholder[stakeholderKey].recorded_at,
+              ).getTime()
+          ) {
+            latestRoundStakeholder[stakeholderKey] = d;
+          }
+
+          if (
+            !roundMeta[roundKey] ||
+            currentDate > new Date(roundMeta[roundKey].recorded_at).getTime()
+          ) {
+            roundMeta[roundKey] = {
+              round_type: d.round_type || "Snapshot",
+              round_date: d.round_date,
+              recorded_at: d.recorded_at,
+            };
+          }
         });
 
-        const sortedRounds = Object.keys(grouped).sort(
-          (a, b) => new Date(a) - new Date(b),
-        );
+        Object.values(latestRoundStakeholder).forEach((d) => {
+          if (!grouped[d.round_id]) grouped[d.round_id] = [];
+          grouped[d.round_id].push(d);
+        });
+
+        const sortedRounds = Object.keys(grouped).sort((a, b) => {
+          const dateA = new Date(
+            roundMeta[a].recorded_at || roundMeta[a].round_date || 0,
+          ).getTime();
+          const dateB = new Date(
+            roundMeta[b].recorded_at || roundMeta[b].round_date || 0,
+          ).getTime();
+          return dateA - dateB;
+        });
 
         // ===== TABLE =====
         sortedRounds.forEach((time) => {
+          const label =
+            roundMeta[time]?.round_type ||
+            `Round ${sortedRounds.indexOf(time) + 1}`;
+          const timestamp = new Date(
+            roundMeta[time].recorded_at,
+          ).toLocaleTimeString();
           table.innerHTML += `
       <tr class="bg-gray-300">
         <td colspan="4" class="p-2 font-bold">
-          Snapshot: ${sortedRounds.indexOf(time) === 0 ? "Initial" : `Snapshot ${sortedRounds.indexOf(time)}`}
+          Snapshot: ${label} (${timestamp})
         </td>
       </tr>
     `;
@@ -207,6 +237,7 @@
         const stakeholderList = Array.from(stakeholders);
 
         const dataMap = {};
+        const firstAppearance = {};
 
         stakeholderList.forEach((name) => {
           dataMap[name] = new Array(rounds.length).fill(0);
@@ -227,18 +258,31 @@
           // 🔥 assign merged values
           Object.keys(unique).forEach((name) => {
             dataMap[name][i] = unique[name];
+            if (firstAppearance[name] === undefined) {
+              firstAppearance[name] = i;
+            }
           });
 
-          // 🔥 carry forward previous values
+          // 🔥 carry forward previous values after first appearance
           stakeholderList.forEach((name) => {
             if (i > 0 && dataMap[name][i] === 0) {
-              dataMap[name][i] = dataMap[name][i - 1];
+              if (
+                firstAppearance[name] !== undefined &&
+                firstAppearance[name] < i &&
+                dataMap[name][i - 1] !== 0
+              ) {
+                dataMap[name][i] = dataMap[name][i - 1];
+              }
             }
           });
         });
 
         const labels = rounds.map((r, i) => {
-          return i === 0 ? "Initial" : `Snapshot ${i}`;
+          const roundType = roundMeta[r]?.round_type || `Snapshot ${i}`;
+          const snapshotTime = new Date(
+            roundMeta[r].recorded_at,
+          ).toLocaleTimeString();
+          return `${roundType} (${snapshotTime})`;
         });
 
         const datasets = stakeholderList.map((name) => ({

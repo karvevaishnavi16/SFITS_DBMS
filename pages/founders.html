@@ -112,6 +112,8 @@
     </div>
 
     <script>
+      let foundersData = [];
+
       window.onload = async function () {
         const user_id = localStorage.getItem("user_id");
 
@@ -170,13 +172,36 @@
       async function addFounder(e) {
         e.preventDefault();
 
-        const name = document.getElementById("name").value;
-        const role = document.getElementById("role").value;
+        const name = document.getElementById("name").value.trim();
+        const role = document.getElementById("role").value.trim();
         const equity = document.getElementById("equity").value;
         const startup_id = document.getElementById("startup_id").value;
 
+        if (!name) {
+          alert("Please enter the founder's name.");
+          return;
+        }
+
         if (!startup_id) {
           alert("Select startup");
+          return;
+        }
+
+        const equityValue = Number(equity);
+        if (Number.isNaN(equityValue) || equityValue <= 0) {
+          alert("Equity must be a positive number");
+          return;
+        }
+
+        const existingEquity = foundersData
+          .filter((f) => f.startup_id === startup_id)
+          .reduce(
+            (sum, founder) => sum + Number(founder.initial_equity || 0),
+            0,
+          );
+
+        if (existingEquity + equityValue > 100) {
+          alert("Total founder equity cannot exceed 100% for this startup");
           return;
         }
 
@@ -218,13 +243,15 @@
         const res = await fetch(`http://localhost:5000/founders/${user_id}`);
         const data = await res.json();
 
+        foundersData = data;
+
         const table = document.getElementById("founderTable");
         table.innerHTML = "";
 
         if (data.length === 0) {
           table.innerHTML = `
       <tr>
-        <td colspan="4" class="text-center p-4">
+        <td colspan="5" class="text-center p-4">
           No founders found
         </td>
       </tr>`;

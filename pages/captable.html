@@ -157,10 +157,10 @@
           return;
         }
 
-        // 🔥 STEP 1: find latest round
-        // 🔥 find latest snapshot using recorded_at
-        // ✅ find latest snapshot safely
-        // ✅ STEP 1: sort by recorded_at descending
+        // 🔥 STEP 1: latest snapshot is selected by round_id on the server
+        // 🔥 find latest snapshot using round_id
+        // ✅ server returns the latest round snapshot
+        // ✅ skip client timestamp sorting
         const unique = {};
 
         data.forEach((row) => {

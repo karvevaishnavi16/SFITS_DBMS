@@ -57,6 +57,10 @@
     </div>
 
     <script>
+      function isValidEmail(email) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      }
+
       document
         .getElementById("loginForm")
         .addEventListener("submit", async function (e) {
@@ -69,8 +73,16 @@
           btn.innerText = "Logging in...";
           btn.disabled = true;
 
-          const email = document.getElementById("email").value;
+          const email = document.getElementById("email").value.trim();
           const password = document.getElementById("password").value;
+
+          if (!isValidEmail(email)) {
+            errorMsg.innerText = "Please enter a valid email address.";
+            errorMsg.classList.remove("hidden");
+            btn.innerText = "Login";
+            btn.disabled = false;
+            return;
+          }
 
           try {
             const res = await fetch("http://localhost:5000/login", {
@@ -96,7 +108,7 @@
               return;
             }
 
-            localStorage.setItem("user_id", user.user_id); // 
+            localStorage.setItem("user_id", user.user_id); //
             localStorage.setItem("investor_id", user.investor_id); // for investments
             localStorage.setItem("user_role", user.role);
             localStorage.setItem("username", user.username);
