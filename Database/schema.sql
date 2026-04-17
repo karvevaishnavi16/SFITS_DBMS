@@ -18,6 +18,11 @@ CREATE TABLE IF NOT EXISTS INDUSTRY (
     industry_name VARCHAR(100) NOT NULL UNIQUE
 );
 
+-- Seed industries
+INSERT IGNORE INTO INDUSTRY VALUES ('I001', 'FinTech');
+INSERT IGNORE INTO INDUSTRY VALUES ('I002', 'HealthTech');
+INSERT IGNORE INTO INDUSTRY VALUES ('I003', 'EdTech');
+
 -- Table 2: STARTUP
 CREATE TABLE IF NOT EXISTS STARTUP (
     startup_id VARCHAR(5) PRIMARY KEY,
@@ -57,7 +62,7 @@ CREATE TABLE IF NOT EXISTS INVESTOR (
 -- Table 5: FUNDING_ROUND
 CREATE TABLE IF NOT EXISTS FUNDING_ROUND (
     round_id VARCHAR(5) PRIMARY KEY,
-    round_type ENUM('Pre-Seed', 'Seed', 'Series A', 'Series B', 'Series C') NOT NULL,
+    round_type ENUM('Initial', 'Pre-Seed', 'Seed', 'Series A', 'Series B', 'Series C') NOT NULL,
     round_date DATE NOT NULL,
     valuation BIGINT UNSIGNED NOT NULL,
     total_amount_raised BIGINT UNSIGNED NOT NULL,

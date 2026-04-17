@@ -2,129 +2,100 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Investors - SFITS</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Investors - SFITS</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../styles.css" />
+    <script src="../theme.js"></script>
   </head>
+  <body>
+    <div class="app-layout">
+      <nav class="sidebar founder">
+        <div class="sidebar-brand">
+          <div class="sidebar-title">SFITS</div>
+          <div class="sidebar-subtitle"><i class="ri-sparkling-2-line"></i> Workspace</div>
+          <div class="sidebar-role-chip">
+            <i class="ri-building-2-line"></i>
+            <span>Founder Panel</span>
+          </div>
+          <p class="sidebar-role-note">Manage your startups, ownership, rounds, and investor momentum from one focused dashboard.</p>
+        </div>
+        <ul class="sidebar-nav">
+          <li><a href="../founder_dashboard.html"><span class="nav-icon"><i class="ri-dashboard-line"></i></span> Dashboard</a></li>
+          <li><a href="startups.html"><span class="nav-icon"><i class="ri-rocket-line"></i></span> My Startups</a></li>
+          <li><a href="founders.html"><span class="nav-icon"><i class="ri-team-line"></i></span> Founders</a></li>
+          <li><a href="funding.html"><span class="nav-icon"><i class="ri-money-dollar-circle-line"></i></span> Funding</a></li>
+          <li><a href="captable.html"><span class="nav-icon"><i class="ri-pie-chart-line"></i></span> Cap Table</a></li>
+          <li><a href="history.html"><span class="nav-icon"><i class="ri-time-line"></i></span> History</a></li>
+          <li><a href="investments.html"><span class="nav-icon"><i class="ri-briefcase-line"></i></span> Investments</a></li>
+        </ul>
+        <div class="sidebar-bottom"><a href="../welcome.html" onclick="localStorage.clear()"><i class="ri-logout-box-r-line"></i> Logout</a></div>
+      </nav>
 
-  <body class="bg-gray-100 p-6">
-    <h1 class="text-2xl font-bold mb-6">Investor Management</h1>
+      <div class="main-content">
+        <div class="page-header"><h1>Investor Management</h1><p>Add and manage investors</p></div>
 
-    <!-- FORM -->
-    <div class="bg-white p-6 rounded-xl shadow mb-6">
-      <h2 class="text-lg font-semibold mb-4">Add Investor</h2>
+        <div class="form-section animate-fade-in-up delay-1">
+          <h2 class="section-title"><i class="ri-user-add-line"></i> Add Investor</h2>
+          <form id="investorForm" class="form-grid">
+            <div><label for="name">Investor Name</label><input id="name" type="text" placeholder="Investor Name" required /></div>
+            <div><label for="firm">Firm Name</label><input id="firm" type="text" placeholder="Firm Name" required /></div>
+            <div>
+              <label for="type">Investor Type</label>
+              <select id="type" required>
+                <option value="">Investor Type</option>
+                <option value="Angel">Angel</option>
+                <option value="VC">VC</option>
+                <option value="Corporate">Corporate</option>
+                <option value="Private Equity">Private Equity</option>
+                <option value="Hedge Fund">Hedge Fund</option>
+                <option value="Family Office">Family Office</option>
+                <option value="Government">Government</option>
+                <option value="Accelerator">Accelerator</option>
+                <option value="Incubator">Incubator</option>
+                <option value="Crowdfunding">Crowdfunding</option>
+              </select>
+            </div>
+            <div><label for="country">Country</label><input id="country" type="text" placeholder="Country" required /></div>
+            <div style="grid-column:1/-1;"><button class="btn btn-gradient btn-full">Add Investor</button></div>
+          </form>
+        </div>
 
-      <form id="investorForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <input
-          id="name"
-          type="text"
-          placeholder="Investor Name"
-          class="border p-2 rounded"
-          required
-        />
-
-        <input
-          id="firm"
-          type="text"
-          placeholder="Firm Name"
-          class="border p-2 rounded"
-          required
-        />
-
-        <select id="type" class="border p-2 rounded" required>
-          <option value="">Investor Type</option>
-          <option value="Angel">Angel</option>
-          <option value="VC">VC</option>
-          <option value="Corporate">Corporate</option>
-          <option value="Private Equity">Private Equity</option>
-          <option value="Hedge Fund">Hedge Fund</option>
-          <option value="Family Office">Family Office</option>
-          <option value="Government">Government</option>
-          <option value="Accelerator">Accelerator</option>
-          <option value="Incubator">Incubator</option>
-          <option value="Crowdfunding">Crowdfunding</option>
-        </select>
-
-        <input
-          id="country"
-          type="text"
-          placeholder="Country"
-          class="border p-2 rounded"
-          required
-        />
-
-        <button class="bg-blue-600 text-white p-2 rounded col-span-2">
-          Add Investor
-        </button>
-      </form>
+        <div class="table-container animate-fade-in-up delay-2">
+          <h2 class="section-title"><i class="ri-file-list-3-line"></i> Investor List</h2>
+          <table>
+            <thead><tr><th>Name</th><th>Firm</th><th>Type</th><th>Country</th></tr></thead>
+            <tbody id="investorTable"></tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
-    <!-- TABLE -->
-    <div class="bg-white p-6 rounded-xl shadow">
-      <h2 class="text-lg font-semibold mb-4">Investor List</h2>
-
-      <table class="w-full border">
-        <thead class="bg-gray-200">
-          <tr>
-            <th class="p-2 border">Name</th>
-            <th class="p-2 border">Firm</th>
-            <th class="p-2 border">Type</th>
-            <th class="p-2 border">Country</th>
-          </tr>
-        </thead>
-
-        <tbody id="investorTable"></tbody>
-      </table>
-    </div>
-
-    <!-- SUBMIT -->
     <script>
-      document
-        .getElementById("investorForm")
-        .addEventListener("submit", async function (e) {
-          e.preventDefault();
-
-          const name = document.getElementById("name").value;
-          const firm = document.getElementById("firm").value;
-          const type = document.getElementById("type").value;
-          const country = document.getElementById("country").value;
-
-          const res = await fetch("http://localhost:5000/addInvestor", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, firm, type, country }),
-          });
-
-          if (res.ok) {
-            alert("Investor added!");
-            loadInvestors();
-          } else {
-            alert("Error adding investor");
-          }
+      document.getElementById("investorForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const name = document.getElementById("name").value;
+        const firm = document.getElementById("firm").value;
+        const type = document.getElementById("type").value;
+        const country = document.getElementById("country").value;
+        const res = await fetch("http://localhost:5000/addInvestor", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, firm, type, country }),
         });
-    </script>
+        if (res.ok) { alert("Investor added!"); document.getElementById("investorForm").reset(); loadInvestors(); }
+        else { alert("Error adding investor"); }
+      });
 
-    <!-- LOAD TABLE -->
-    <script>
       async function loadInvestors() {
         const res = await fetch("http://localhost:5000/investors");
         const data = await res.json();
-
         const table = document.getElementById("investorTable");
         table.innerHTML = "";
-
+        if (data.length === 0) { table.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:1.5rem;color:var(--text-muted);">No investors yet</td></tr>`; return; }
         data.forEach((i) => {
-          table.innerHTML += `
-      <tr>
-        <td class="p-2 border">${i.investor_name}</td>
-        <td class="p-2 border">${i.firm_name}</td>
-        <td class="p-2 border">${i.investor_type}</td>
-        <td class="p-2 border">${i.country}</td>
-      </tr>
-    `;
+          table.innerHTML += `<tr><td>${i.investor_name}</td><td>${i.firm_name}</td><td><span class="badge badge-teal">${i.investor_type}</span></td><td>${i.country}</td></tr>`;
         });
       }
-
       loadInvestors();
     </script>
   </body>

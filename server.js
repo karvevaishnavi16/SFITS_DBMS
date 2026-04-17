@@ -11,7 +11,7 @@ app.use(express.json());
 const db = mysql.createConnection({
   host: "localhost",
   user: "root",
-  password: "Trupti@2007",
+  password: "root123",
   database: "SFITS_DBMS_PRJ",
 });
 
@@ -19,57 +19,73 @@ db.connect((err) => {
   if (err) return console.error(err);
   console.log("MySQL Connected");
 
-  db.query(
-    "SHOW COLUMNS FROM FOUNDER LIKE 'founder_email'",
-    (showErr, showRes) => {
-      if (showErr) {
-        return console.warn(
-          "Unable to inspect FOUNDER columns:",
-          showErr.sqlMessage || showErr.message,
-        );
-      }
+  function ensureColumn(tableName, columnName, alterSql) {
+    db.query(
+      `SHOW COLUMNS FROM ${tableName} LIKE ?`,
+      [columnName],
+      (showErr, showRes) => {
+        if (showErr) {
+          return console.warn(
+            `Unable to inspect ${tableName} columns:`,
+            showErr.sqlMessage || showErr.message,
+          );
+        }
 
-      if (!showRes || showRes.length === 0) {
-        db.query(
-          "ALTER TABLE FOUNDER ADD COLUMN founder_email VARCHAR(100) NULL",
-          (alterErr) => {
+        if (!showRes || showRes.length === 0) {
+          db.query(alterSql, (alterErr) => {
             if (alterErr) {
               return console.error(
-                "Failed to add FOUNDER.founder_email:",
+                `Failed to add ${tableName}.${columnName}:`,
                 alterErr.sqlMessage || alterErr.message,
               );
             }
-            console.log("Added missing FOUNDER.founder_email column");
-          },
-        );
-      }
-    },
+            console.log(`Added missing ${tableName}.${columnName} column`);
+          });
+        }
+      },
+    );
+  }
+
+  ensureColumn(
+    "FOUNDER",
+    "founder_email",
+    "ALTER TABLE FOUNDER ADD COLUMN founder_email VARCHAR(100) NULL",
   );
 
-  db.query("SHOW COLUMNS FROM FOUNDER LIKE 'user_id'", (showErr, showRes) => {
-    if (showErr) {
-      return console.warn(
-        "Unable to inspect FOUNDER columns:",
-        showErr.sqlMessage || showErr.message,
-      );
-    }
+  ensureColumn(
+    "FOUNDER",
+    "user_id",
+    "ALTER TABLE FOUNDER ADD COLUMN user_id INT NULL",
+  );
 
-    if (!showRes || showRes.length === 0) {
+  ensureColumn(
+    "INVESTOR",
+    "user_id",
+    "ALTER TABLE INVESTOR ADD COLUMN user_id INT NULL",
+  );
+
+  ensureColumn(
+    "STARTUP",
+    "user_id",
+    "ALTER TABLE STARTUP ADD COLUMN user_id INT NULL",
+  );
+
+  // Seed INDUSTRY table if empty///////////////////////
+  db.query("SELECT COUNT(*) AS cnt FROM INDUSTRY", (err, res) => {
+    if (err) return console.warn("Could not check INDUSTRY table:", err.message);
+    if (res[0].cnt === 0) {
       db.query(
-        "ALTER TABLE FOUNDER ADD COLUMN user_id INT NULL",
-        (alterErr) => {
-          if (alterErr) {
-            return console.error(
-              "Failed to add FOUNDER.user_id:",
-              alterErr.sqlMessage || alterErr.message,
-            );
-          }
-          console.log("Added missing FOUNDER.user_id column");
-        },
+        `INSERT IGNORE INTO INDUSTRY (industry_id, industry_name) VALUES
+         ('I001','FinTech'),('I002','HealthTech'),('I003','EdTech')`,
+        (insertErr) => {
+          if (insertErr) return console.error("Industry seed failed:", insertErr.message);
+          console.log("Seeded INDUSTRY table");
+        }
       );
     }
   });
 });
+////////////////////////////
 
 function isValidEmail(email) {
   return typeof email === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -112,7 +128,7 @@ app.post("/login", (req, res) => {
      WHERE u.email = ? AND u.password = ?`,
     [email, password],
     (err, result) => {
-      if (err) return res.status(500).send("Error");
+      if (err) return res.status(500).send(err.sqlMessage || "Login failed");
 
       if (result.length === 0) return res.status(401).send("Invalid");
 
@@ -746,6 +762,7 @@ app.get("/startupDashboard/:startup_id", (req, res) => {
 
   db.query(
     `SELECT 
+      s.startup_name,
       s.stage,
 
       -- latest round
