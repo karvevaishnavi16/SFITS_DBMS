@@ -145,12 +145,46 @@ app.post("/login", (req, res) => {
         );
       }
 
-      res.json({
-        user_id: user.user_id,
-        username: user.username,
-        role: user.role,
-        investor_id: user.investor_id,
-      });
+      const sendLogin = (investorId) => {
+        res.json({
+          user_id: user.user_id,
+          username: user.username,
+          role: user.role,
+          investor_id: investorId || null,
+        });
+      };
+
+      if (user.role === "investor" && !user.investor_id) {
+        db.query(
+          "UPDATE INVESTOR SET user_id = ? WHERE TRIM(LOWER(investor_name)) = TRIM(LOWER(?)) AND user_id IS NULL",
+          [user.user_id, user.username],
+          (linkErr) => {
+            if (linkErr) {
+              console.warn("Investor auto-link failed:", linkErr.sqlMessage);
+              return sendLogin(null);
+            }
+
+            db.query(
+              "SELECT investor_id FROM INVESTOR WHERE user_id = ? LIMIT 1",
+              [user.user_id],
+              (invErr, invRes) => {
+                if (invErr) {
+                  console.warn(
+                    "Investor fetch after auto-link failed:",
+                    invErr.sqlMessage,
+                  );
+                  return sendLogin(null);
+                }
+
+                sendLogin(invRes[0]?.investor_id || null);
+              },
+            );
+          },
+        );
+        return;
+      }
+
+      sendLogin(user.investor_id);
     },
   );
 });
@@ -405,10 +439,67 @@ app.get("/funding/:user_id", (req, res) => {
   );
 });
 
+app.get("/investors", (req, res) => {
+  db.query(
+    `SELECT investor_id, investor_name, firm_name, investor_type, country
+     FROM INVESTOR
+     ORDER BY investor_name`,
+    (err, result) => {
+      if (err) return res.status(500).send(err.sqlMessage);
+      res.json(result);
+    },
+  );
+});
+
+app.post("/addInvestor", (req, res) => {
+  const { name, firm, type, country } = req.body;
+
+  db.query(
+    `INSERT INTO INVESTOR
+     (investor_id, investor_name, firm_name, investor_type, country)
+     VALUES (?, ?, ?, ?, ?)`,
+    [generateId("I"), name, firm, type, country],
+    (err) => {
+      if (err) return res.status(500).send(err.sqlMessage);
+      res.send("Investor added");
+    },
+  );
+});
+
+app.get("/investments/:user_id", (req, res) => {
+  db.query(
+    `SELECT DISTINCT
+      inv.investor_name,
+      fr.round_type,
+      i.amount_invested,
+      i.equity_acquired
+     FROM INVESTMENT i
+     JOIN INVESTOR inv ON i.investor_id = inv.investor_id
+     JOIN FUNDING_ROUND fr ON i.round_id = fr.round_id
+     JOIN STARTUP s ON fr.startup_id = s.startup_id
+     LEFT JOIN FOUNDER f ON s.startup_id = f.startup_id
+     LEFT JOIN USERS u2 ON TRIM(LOWER(u2.email)) = TRIM(LOWER(f.founder_email))
+     WHERE s.user_id = ? OR f.user_id = ? OR u2.user_id = ?`,
+    [req.params.user_id, req.params.user_id, req.params.user_id],
+    (err, result) => {
+      if (err) return res.status(500).send(err.sqlMessage);
+      res.json(result);
+    },
+  );
+});
+
 // ================= INVESTMENT =================
 app.post("/addInvestment", (req, res) => {
-  const { round_id, user_id, username, firm_name, country, amount, equity } =
-    req.body;
+  const {
+    round_id,
+    user_id,
+    investor_id: providedInvestorId,
+    username,
+    firm_name,
+    country,
+    amount,
+    equity,
+  } = req.body;
 
   const equityNum = Number(equity);
 
@@ -416,8 +507,8 @@ app.post("/addInvestment", (req, res) => {
 
   // 1️⃣ Get or create investor
   db.query(
-    "SELECT investor_id FROM INVESTOR WHERE user_id=?",
-    [user_id],
+    "SELECT investor_id FROM INVESTOR WHERE user_id=? OR investor_id=?",
+    [user_id, providedInvestorId || null],
     (err, invRes) => {
       if (err) return res.status(500).send(err.sqlMessage);
 
@@ -601,7 +692,7 @@ app.post("/addInvestment", (req, res) => {
           `INSERT INTO INVESTMENT 
            (investment_id, round_id, investor_id, amount_invested, equity_acquired)
            VALUES (?, ?, ?, ?, ?)`,
-          [generateId("INV"), round_id, investor_id, amount, equity],
+          [generateId("IV"), round_id, investor_id, amount, equity],
           (err) => {
             if (err) return res.status(500).send(err.sqlMessage);
 
