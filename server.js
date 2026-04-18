@@ -11,7 +11,7 @@ app.use(express.json());
 const db = mysql.createConnection({
   host: "localhost",
   user: "root",
-  password: "root123",
+  password: "Trupti@2007",
   database: "SFITS_DBMS_PRJ",
 });
 
@@ -72,15 +72,17 @@ db.connect((err) => {
 
   // Seed INDUSTRY table if empty///////////////////////
   db.query("SELECT COUNT(*) AS cnt FROM INDUSTRY", (err, res) => {
-    if (err) return console.warn("Could not check INDUSTRY table:", err.message);
+    if (err)
+      return console.warn("Could not check INDUSTRY table:", err.message);
     if (res[0].cnt === 0) {
       db.query(
         `INSERT IGNORE INTO INDUSTRY (industry_id, industry_name) VALUES
          ('I001','FinTech'),('I002','HealthTech'),('I003','EdTech')`,
         (insertErr) => {
-          if (insertErr) return console.error("Industry seed failed:", insertErr.message);
+          if (insertErr)
+            return console.error("Industry seed failed:", insertErr.message);
           console.log("Seeded INDUSTRY table");
-        }
+        },
       );
     }
   });
