@@ -762,4 +762,21 @@
       SFITS v1.0 - Startup Funding & Investor Tracking System • DBMS Project 2025
     </footer>
   </body>
+  <script>
+  const items = document.querySelectorAll('.feature-item');
+
+  const observer = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('show');
+        observer.unobserve(entry.target); // animate only once (clean UX)
+      }
+    });
+  }, {
+    threshold: 0.15,
+    rootMargin: "0px 0px -50px 0px"
+  });
+
+  items.forEach(item => observer.observe(item));
+</script>
 </html>

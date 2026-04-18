@@ -34,6 +34,7 @@
 
         <div class="form-section animate-fade-in-up delay-1" style="max-width:600px;">
           <h2 class="section-title"><i class="ri-focus-3-line"></i> Make an Investment</h2>
+          <div id="selectedStartupBanner" class="mb-4" style="display:none;padding:0.9rem 1rem;border-radius:16px;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.14);color:var(--accent-indigo);font-weight:600;"></div>
           <form id="investForm" class="form-grid cols-1">
             <div><label for="round">Funding Round</label><select id="round" required></select></div>
             <div><label for="firm_name">Firm Name</label><input id="firm_name" type="text" placeholder="Firm Name (e.g. Self / VC Firm)" required /></div>
@@ -62,11 +63,29 @@
       }
 
       async function loadRounds() {
+        const selectedStartupId = localStorage.getItem("selected_invest_startup_id");
+        const selectedStartupName = localStorage.getItem("selected_invest_startup_name");
         const res = await fetch("http://localhost:5000/allRounds");
         const data = await res.json();
         const dropdown = document.getElementById("round");
+        const banner = document.getElementById("selectedStartupBanner");
+        const filteredRounds = selectedStartupId
+          ? data.filter((r) => r.startup_id === selectedStartupId)
+          : data;
+
         dropdown.innerHTML = `<option value="" disabled selected>Select Round</option>`;
-        data.forEach((r) => { dropdown.innerHTML += `<option value="${r.round_id}">${r.startup_name} - ${r.round_type}</option>`; });
+        filteredRounds.forEach((r) => { dropdown.innerHTML += `<option value="${r.round_id}">${r.startup_name} - ${r.round_type}</option>`; });
+
+        if (selectedStartupId && selectedStartupName) {
+          banner.style.display = "block";
+          banner.textContent = `Investing in ${selectedStartupName}`;
+        } else {
+          banner.style.display = "none";
+        }
+
+        if (filteredRounds.length === 1) {
+          dropdown.value = filteredRounds[0].round_id;
+        }
       }
 
       let isSubmitting = false;
@@ -86,6 +105,8 @@
             body: JSON.stringify({ round_id, user_id, username, firm_name, country, amount, equity }),
           });
           alert(await res.text());
+          localStorage.removeItem("selected_invest_startup_id");
+          localStorage.removeItem("selected_invest_startup_name");
           window.location.reload();
         } catch (err) { console.error(err); } finally { isSubmitting = false; }
       });

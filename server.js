@@ -11,7 +11,7 @@ app.use(express.json());
 const db = mysql.createConnection({
   host: "localhost",
   user: "root",
-  password: "Trupti@2007",
+  password: "root123",
   database: "SFITS_DBMS_PRJ",
 });
 
@@ -744,7 +744,7 @@ app.get("/history/:startup_id", (req, res) => {
 // ================= EXTRA (USED IN UI) =================
 app.get("/allRounds", (req, res) => {
   db.query(
-    `SELECT fr.round_id, fr.round_type, s.startup_name
+    `SELECT fr.round_id, fr.round_type, s.startup_id, s.startup_name
      FROM FUNDING_ROUND fr
      JOIN STARTUP s ON fr.startup_id = s.startup_id
      JOIN (
