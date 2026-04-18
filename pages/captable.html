@@ -204,6 +204,7 @@
 
       async function loadStartups() {
         const user_id = localStorage.getItem("user_id");
+        const savedStartupId = localStorage.getItem("startup_id");
         const res = await fetch(`http://localhost:5000/startups/${user_id}`);
         const data = await res.json();
         const dropdown = document.getElementById("startupSelect");
@@ -212,19 +213,34 @@
           dropdown.innerHTML += `<option value="${s.startup_id}">${s.startup_name}</option>`;
         });
         if (data.length > 0) {
-          const firstId = data[0].startup_id;
-          dropdown.value = firstId;
-          localStorage.setItem("startup_id", firstId);
-          loadCapTable(firstId);
+          const selectedStartupId = data.some((s) => s.startup_id === savedStartupId)
+            ? savedStartupId
+            : data[0].startup_id;
+          dropdown.value = selectedStartupId;
+          localStorage.setItem("startup_id", selectedStartupId);
+          loadCapTable(selectedStartupId);
         }
       }
 
       async function loadCapTable(startup_id) {
+        const table = document.getElementById("capTableBody");
+        if (!startup_id) {
+          table.innerHTML = `<tr><td colspan="3" class="text-center py-8" style="color:var(--text-muted);">Select a startup</td></tr>`;
+          if (chart) {
+            chart.destroy();
+            chart = null;
+          }
+          return;
+        }
+        localStorage.setItem("startup_id", startup_id);
         const res = await fetch(`http://localhost:5000/capTable/${startup_id}`);
         const data = await res.json();
-        const table = document.getElementById("capTableBody");
         table.innerHTML = "";
         if (data.length === 0) {
+          if (chart) {
+            chart.destroy();
+            chart = null;
+          }
           table.innerHTML = `<tr><td colspan="3" class="text-center py-8" style="color:var(--text-muted);">No data</td></tr>`;
           return;
         }
