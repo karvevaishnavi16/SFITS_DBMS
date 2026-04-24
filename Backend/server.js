@@ -226,7 +226,7 @@ app.post("/addStartup", (req, res) => {
   );
 });
 
-// ✅ RESTORED
+// Γ£à RESTORED
 app.get("/startups/:user_id", (req, res) => {
   db.query(
     `SELECT DISTINCT s.*
@@ -283,7 +283,7 @@ app.post("/addFounder", (req, res) => {
 
         const snapshotTime = timeRes[0].now;
 
-        // 🔥 STEP 1: GET OR CREATE ROUND (ONLY ONCE)
+        // ≡ƒöÑ STEP 1: GET OR CREATE ROUND (ONLY ONCE)
         db.query(
           "SELECT round_id FROM FUNDING_ROUND WHERE startup_id=? ORDER BY round_date DESC LIMIT 1",
           [startup_id],
@@ -311,7 +311,7 @@ app.post("/addFounder", (req, res) => {
               insertAllFounders(round_id);
             }
 
-            // 🔥 STEP 2: INSERT FOUNDERS + EQUITY
+            // ≡ƒöÑ STEP 2: INSERT FOUNDERS + EQUITY
             function insertAllFounders(round_id) {
               let completed = 0;
 
@@ -346,7 +346,7 @@ app.post("/addFounder", (req, res) => {
                       (err2) => {
                         if (err2) return res.status(500).send(err2.sqlMessage);
 
-                        // ✅ insert into EQUITY_HISTORY (FIXED)
+                        // Γ£à insert into EQUITY_HISTORY (FIXED)
                         db.query(
                           `INSERT INTO EQUITY_HISTORY
                        (ownership_id, startup_id, round_id, stakeholder_type, stakeholder_id, equity_percentage, recorded_at)
@@ -354,7 +354,7 @@ app.post("/addFounder", (req, res) => {
                           [
                             generateId("H"),
                             startup_id,
-                            round_id, // ✅ dynamic (NO R0)
+                            round_id, // Γ£à dynamic (NO R0)
                             founder_id,
                             f.equity,
                             snapshotTime,
@@ -383,8 +383,9 @@ app.post("/addFounder", (req, res) => {
   );
 });
 
-// ✅ RESTORED
+// Γ£à RESTORED
 app.get("/founders/:user_id", (req, res) => {
+  const uid = req.params.user_id;
   db.query(
     `SELECT DISTINCT f.*, s.startup_name, COALESCE(u.email, f.founder_email) AS founder_email
      FROM FOUNDER f
@@ -393,8 +394,13 @@ app.get("/founders/:user_id", (req, res) => {
      LEFT JOIN USERS u2 ON TRIM(LOWER(u2.email)) = TRIM(LOWER(f.founder_email))
      WHERE s.user_id = ?
        OR f.user_id = ?
-       OR u2.user_id = ?`,
-    [req.params.user_id, req.params.user_id, req.params.user_id],
+       OR u2.user_id = ?
+       OR f.startup_id IN (
+            SELECT f2.startup_id FROM FOUNDER f2
+            LEFT JOIN USERS u3 ON TRIM(LOWER(u3.email)) = TRIM(LOWER(f2.founder_email))
+            WHERE f2.user_id = ? OR u3.user_id = ?
+          )`,
+    [uid, uid, uid, uid, uid],
     (err, result) => {
       if (err) return res.status(500).send(err.sqlMessage);
       res.json(result);
@@ -426,14 +432,17 @@ app.post("/addFunding", (req, res) => {
   );
 });
 
-// ✅ RESTORED
+// Γ£à RESTORED
 app.get("/funding/:user_id", (req, res) => {
+  const uid = req.params.user_id;
   db.query(
-    `SELECT f.*, s.startup_name
-     FROM FUNDING_ROUND f
-     JOIN STARTUP s ON f.startup_id = s.startup_id
-     WHERE s.user_id = ?`,
-    [req.params.user_id],
+    `SELECT DISTINCT fr.*, s.startup_name
+     FROM FUNDING_ROUND fr
+     JOIN STARTUP s ON fr.startup_id = s.startup_id
+     LEFT JOIN FOUNDER f ON s.startup_id = f.startup_id
+     LEFT JOIN USERS u2 ON TRIM(LOWER(u2.email)) = TRIM(LOWER(f.founder_email))
+     WHERE s.user_id = ? OR f.user_id = ? OR u2.user_id = ?`,
+    [uid, uid, uid],
     (err, result) => {
       if (err) return res.status(500).send(err.sqlMessage);
       res.json(result);
@@ -507,7 +516,7 @@ app.post("/addInvestment", (req, res) => {
 
   console.log("Incoming Investment:", req.body);
 
-  // 1️⃣ Get or create investor
+  // 1∩╕ÅΓâú Get or create investor
   db.query(
     "SELECT investor_id FROM INVESTOR WHERE user_id=? OR investor_id=?",
     [user_id, providedInvestorId || null],
@@ -551,13 +560,13 @@ app.post("/addInvestment", (req, res) => {
 
             const startup_id = r[0].startup_id;
 
-            // 🔥 ONE SNAPSHOT TIME FOR ALL
+            // ≡ƒöÑ ONE SNAPSHOT TIME FOR ALL
             db.query("SELECT NOW() as now", (err, timeRes) => {
               if (err) return res.status(500).send(err.sqlMessage);
 
               const snapshotTime = timeRes[0].now;
 
-              // 2️⃣ Get last equity snapshot
+              // 2∩╕ÅΓâú Get last equity snapshot
               db.query(
                 `SELECT stakeholder_id, stakeholder_type, equity_percentage
                   FROM (
@@ -578,7 +587,7 @@ app.post("/addInvestment", (req, res) => {
 
                   console.log("Previous Equity:", lastData);
 
-                  // ✅ FIRST INVESTMENT CASE
+                  // Γ£à FIRST INVESTMENT CASE
                   if (!lastData || lastData.length === 0) {
                     db.query(
                       "SELECT founder_id, initial_equity FROM FOUNDER WHERE startup_id=?",
@@ -680,7 +689,7 @@ app.post("/addInvestment", (req, res) => {
                     );
                   }
 
-                  // ❌ REMOVED DUPLICATE INSERT (THIS WAS YOUR BUG)
+                  // Γ¥î REMOVED DUPLICATE INSERT (THIS WAS YOUR BUG)
                 },
               );
             });
@@ -688,7 +697,7 @@ app.post("/addInvestment", (req, res) => {
         );
       }
 
-      // 3️⃣ Store investment separately
+      // 3∩╕ÅΓâú Store investment separately
       function insertInvestment() {
         db.query(
           `INSERT INTO INVESTMENT 
@@ -763,7 +772,7 @@ app.get("/allRounds", (req, res) => {
 app.get("/capTable/:startup_id", (req, res) => {
   const startup_id = req.params.startup_id;
 
-  // ✅ Show current equity state for each stakeholder
+  // Γ£à Show current equity state for each stakeholder
   db.query(
     `SELECT
       COALESCE(f.founder_name, i.investor_name) AS stakeholder,
@@ -874,7 +883,7 @@ app.get("/startupDashboard/:startup_id", (req, res) => {
       ORDER BY fr.round_date DESC 
       LIMIT 1) AS valuation,
 
-      -- ✅ CORRECT total funding
+      -- Γ£à CORRECT total funding
       (SELECT COALESCE(SUM(i.amount_invested),0)
       FROM INVESTMENT i
       JOIN FUNDING_ROUND fr ON i.round_id = fr.round_id
@@ -887,14 +896,14 @@ app.get("/startupDashboard/:startup_id", (req, res) => {
       AND fr.total_amount_raised > 0
       ) AS target_funding,
 
-      -- ✅ CORRECT total investors
+      -- Γ£à CORRECT total investors
       (SELECT COUNT(DISTINCT i.investor_id)
       FROM INVESTMENT i
       JOIN FUNDING_ROUND fr ON i.round_id = fr.round_id
       WHERE fr.startup_id = s.startup_id
       ) AS total_investors,
 
-      -- ✅ latest founder equity (your logic is good 👍)
+      -- Γ£à latest founder equity (your logic is good ≡ƒæì)
       (
     SELECT COALESCE(SUM(equity_percentage),0)
     FROM (
@@ -918,7 +927,7 @@ app.get("/startupDashboard/:startup_id", (req, res) => {
     (err, result) => {
       if (err) return res.status(500).send(err.sqlMessage);
 
-      console.log("Dashboard Data:", result[0]); // 🔥 DEBUG
+      console.log("Dashboard Data:", result[0]); // ≡ƒöÑ DEBUG
 
       res.json(result[0]);
     },

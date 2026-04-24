@@ -2,8 +2,9 @@
   "name": "sfits",
   "version": "1.0.0",
   "description": "# A web application to track startup funding rounds, investor ownership and equity dilution over time.",
-  "main": "index.js",
+  "main": "Backend/server.js",
   "scripts": {
+    "start": "node Backend/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
