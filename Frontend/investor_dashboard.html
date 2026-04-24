@@ -33,13 +33,13 @@
       </nav>
 
       <div class="main-content">
-        <div class="flex justify-between items-center mb-6 animate-fade-in-down">
+        <div class="workspace-header-card animate-fade-in-down">
           <div>
             <div class="role-badge investor mb-2"><i class="ri-line-chart-line"></i> Investor Panel</div>
             <h1 class="text-2xl font-extrabold tracking-tight" style="color:var(--text-primary);">Welcome, <span style="background:var(--gradient-green);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Investor</span></h1>
             <p class="text-sm mt-1" style="color:var(--text-muted);">Your portfolio at a glance</p>
           </div>
-          <div class="px-4 py-2 rounded-xl text-xs font-semibold inline-flex items-center gap-2" style="background:rgba(16,185,129,0.08);color:var(--accent-green);border:1px solid rgba(16,185,129,0.15);">
+          <div class="info-chip">
             <i class="ri-calendar-event-line"></i><span id="dateDisplay"></span>
           </div>
         </div>
@@ -80,27 +80,27 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-          <div class="lg:col-span-2 rounded-2xl p-6 animate-fade-in-up delay-4" style="background:var(--bg-card);border:1px solid var(--border-glass);box-shadow:var(--shadow-sm);">
+          <div class="lg:col-span-2 panel-card rounded-2xl p-6 animate-fade-in-up delay-4" style="background:var(--bg-card);border:1px solid var(--border-glass);box-shadow:var(--shadow-sm);">
             <h2 class="text-sm font-bold uppercase tracking-wider mb-4 inline-flex items-center gap-2" style="color:var(--text-muted);"><i class="ri-donut-chart-line"></i> Investment Distribution</h2>
             <div style="max-width:420px;height:280px;margin:0 auto;">
               <canvas id="investmentChart"></canvas>
             </div>
           </div>
 
-          <div class="rounded-2xl p-6 animate-fade-in-up delay-5" style="background:var(--bg-card);border:1px solid var(--border-glass);box-shadow:var(--shadow-sm);">
+          <div class="panel-card rounded-2xl p-6 animate-fade-in-up delay-5" style="background:var(--bg-card);border:1px solid var(--border-glass);box-shadow:var(--shadow-sm);">
             <h2 class="text-sm font-bold uppercase tracking-wider mb-4 inline-flex items-center gap-2" style="color:var(--text-muted);"><i class="ri-flashlight-line"></i> Quick Actions</h2>
             <div class="flex flex-col gap-3">
-              <a href="investor_pages/browse_startups.html" class="flex items-center gap-3 p-3 rounded-xl transition-all hover:translate-x-1" style="background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.1);text-decoration:none;color:var(--text-primary);">
-                <span class="text-xl text-indigo-500"><i class="ri-search-line"></i></span>
-                <div><p class="text-sm font-semibold">Browse Startups</p><p class="text-xs" style="color:var(--text-muted);">Find new opportunities</p></div>
+              <a href="investor_pages/browse_startups.html" class="action-tile">
+                <span class="action-tile__icon text-indigo-500"><i class="ri-search-line"></i></span>
+                <div class="action-tile__copy"><strong>Browse Startups</strong><span>Find new opportunities</span></div>
               </a>
-              <a href="investor_pages/invest.html" class="flex items-center gap-3 p-3 rounded-xl transition-all hover:translate-x-1" style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.1);text-decoration:none;color:var(--text-primary);">
-                <span class="text-xl text-emerald-500"><i class="ri-coins-line"></i></span>
-                <div><p class="text-sm font-semibold">Make Investment</p><p class="text-xs" style="color:var(--text-muted);">Invest in a round</p></div>
+              <a href="investor_pages/invest.html" class="action-tile">
+                <span class="action-tile__icon text-emerald-500"><i class="ri-coins-line"></i></span>
+                <div class="action-tile__copy"><strong>Make Investment</strong><span>Invest in a round</span></div>
               </a>
-              <a href="investor_pages/my_investments.html" class="flex items-center gap-3 p-3 rounded-xl transition-all hover:translate-x-1" style="background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.1);text-decoration:none;color:var(--text-primary);">
-                <span class="text-xl text-violet-500"><i class="ri-bar-chart-grouped-line"></i></span>
-                <div><p class="text-sm font-semibold">My Investments</p><p class="text-xs" style="color:var(--text-muted);">Track your portfolio</p></div>
+              <a href="investor_pages/my_investments.html" class="action-tile">
+                <span class="action-tile__icon text-violet-500"><i class="ri-bar-chart-grouped-line"></i></span>
+                <div class="action-tile__copy"><strong>My Investments</strong><span>Track your portfolio</span></div>
               </a>
             </div>
           </div>
@@ -156,5 +156,24 @@
 
       (async () => { await ensureInvestor(); await loadDashboard(); await loadChart(); })();
     </script>
-  </body>
+  <script>
+(function() {
+  var name = localStorage.getItem("username") || "User";
+  var role = localStorage.getItem("role") || "Member";
+  var initials = name.split(" ").map(function(w){return w[0]||"";}).join("").slice(0,2).toUpperCase();
+  var brand = document.querySelector(".sidebar-brand");
+  if (brand) {
+    var chip = document.createElement("div");
+    chip.className = "sidebar-user-chip";
+    chip.innerHTML = "<div class=\"sidebar-user-avatar\">" + initials + "</div><div class=\"sidebar-user-info\"><div class=\"sidebar-user-name\">" + name + "</div><div class=\"sidebar-user-role\">" + role + "</div></div>";
+    var title = brand.querySelector(".sidebar-title");
+    if (title && title.nextSibling) {
+      brand.insertBefore(chip, title.nextSibling);
+    } else {
+      brand.appendChild(chip);
+    }
+  }
+})();
+</script>
+</body>
 </html>

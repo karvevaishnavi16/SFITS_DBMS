@@ -674,49 +674,42 @@
       </div>
     </div>
 
-    <!-- 🔥 Marquee Section -->
-     <!-- 🔥 TRUSTED BY MARQUEE SECTION -->
-<section class="marquee-section">
-
-  <div class="marquee-heading">
-    TRUSTED BY FOUNDERS BACKED BY
-  </div>
-
-  <div class="marquee-wrapper">
-    <div class="marquee-track">
-
-      <!-- GROUP 1 -->
-      <div class="marquee-group">
-        <span>Sequoia</span>
-        <span>Accel</span>
-        <span>Y Combinator</span>
-        <span>TechNova</span>
-        <span>Tiger Global</span>
-        <span>SoftBank</span>
-        <span>Lightspeed</span>
-        <span>Matrix</span>
-        <span>Nexus</span>
-        <span>Blume</span>
+    <section class="marquee-section">
+      <div class="marquee-heading">
+        TRUSTED BY FOUNDERS BACKED BY
       </div>
 
-      <!-- GROUP 2 (duplicate for loop) -->
-      <div class="marquee-group">
-        <span>Sequoia</span>
-        <span>Accel</span>
-        <span>Y Combinator</span>
-        <span>TechNova</span>
-        <span>Tiger Global</span>
-        <span>SoftBank</span>
-        <span>Lightspeed</span>
-        <span>Matrix</span>
-        <span>Nexus</span>
-        <span>Blume</span>
+      <div class="marquee-wrapper">
+        <div class="marquee-track">
+          <div class="marquee-group">
+            <span>Sequoia</span>
+            <span>Accel</span>
+            <span>Y Combinator</span>
+            <span>TechNova</span>
+            <span>Tiger Global</span>
+            <span>SoftBank</span>
+            <span>Lightspeed</span>
+            <span>Matrix</span>
+            <span>Nexus</span>
+            <span>Blume</span>
+          </div>
+
+          <div class="marquee-group">
+            <span>Sequoia</span>
+            <span>Accel</span>
+            <span>Y Combinator</span>
+            <span>TechNova</span>
+            <span>Tiger Global</span>
+            <span>SoftBank</span>
+            <span>Lightspeed</span>
+            <span>Matrix</span>
+            <span>Nexus</span>
+            <span>Blume</span>
+          </div>
+        </div>
       </div>
+    </section>
 
-    </div>
-  </div>
-
-</section>
     <section class="features-section">
       <div class="features-label">What We Offer</div>
       <h2 class="features-title">Everything you need to manage funding</h2>
@@ -763,20 +756,23 @@
     </footer>
   </body>
   <script>
-  const items = document.querySelectorAll('.feature-item');
+    const items = document.querySelectorAll(".feature-item");
 
-  const observer = new IntersectionObserver((entries, observer) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('show');
-        observer.unobserve(entry.target); // animate only once (clean UX)
-      }
-    });
-  }, {
-    threshold: 0.15,
-    rootMargin: "0px 0px -50px 0px"
-  });
+    const observer = new IntersectionObserver(
+      (entries, observerRef) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("show");
+            observerRef.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        threshold: 0.15,
+        rootMargin: "0px 0px -50px 0px",
+      },
+    );
 
-  items.forEach(item => observer.observe(item));
-</script>
+    items.forEach((item) => observer.observe(item));
+  </script>
 </html>

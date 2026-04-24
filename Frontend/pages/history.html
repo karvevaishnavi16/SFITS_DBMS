@@ -96,7 +96,7 @@
         </div>
 
         <div
-          class="rounded-2xl p-4 mb-6 animate-fade-in-up delay-1 flex items-center gap-4"
+          class="startup-toolbar rounded-2xl p-4 mb-6 animate-fade-in-up delay-1 flex items-center gap-4"
           style="
             background: var(--bg-card);
             border: 1px solid var(--border-glass);
@@ -116,9 +116,8 @@
           ></select>
         </div>
 
-        <!-- Chart -->
         <div
-          class="rounded-2xl p-6 mb-6 animate-fade-in-up delay-2"
+          class="panel-card panel-card--chart rounded-2xl p-6 mb-6 animate-fade-in-up delay-2"
           style="
             background: var(--bg-card);
             border: 1px solid var(--border-glass);
@@ -136,12 +135,13 @@
               Equity Over Time
             </h2>
           </div>
-          <canvas id="chart"></canvas>
+          <div class="chart-shell chart-shell--history">
+            <canvas id="chart"></canvas>
+          </div>
         </div>
 
-        <!-- Table -->
         <div
-          class="rounded-2xl p-6 animate-fade-in-up delay-3"
+          class="panel-card panel-card--table rounded-2xl p-6 animate-fade-in-up delay-3"
           style="
             background: var(--bg-card);
             border: 1px solid var(--border-glass);
@@ -178,6 +178,7 @@
 
     <script>
       let chart;
+
       window.onload = async function () {
         const user_id = localStorage.getItem("user_id");
         if (!user_id) {
@@ -185,6 +186,7 @@
           window.location.href = "../login.html";
           return;
         }
+
         await loadStartups();
         document
           .getElementById("startup_id")
@@ -197,12 +199,16 @@
         const res = await fetch(`http://localhost:5000/startups/${user_id}`);
         const data = await res.json();
         const dropdown = document.getElementById("startup_id");
+
         dropdown.innerHTML = `<option value="">Select Startup</option>`;
-        data.forEach((s) => {
-          dropdown.innerHTML += `<option value="${s.startup_id}">${s.startup_name}</option>`;
+        data.forEach((startup) => {
+          dropdown.innerHTML += `<option value="${startup.startup_id}">${startup.startup_name}</option>`;
         });
+
         if (data.length > 0) {
-          const selectedStartupId = data.some((s) => s.startup_id === savedStartupId)
+          const selectedStartupId = data.some(
+            (startup) => startup.startup_id === savedStartupId,
+          )
             ? savedStartupId
             : data[0].startup_id;
           dropdown.value = selectedStartupId;
@@ -214,6 +220,7 @@
       async function loadHistory() {
         const startup_id = document.getElementById("startup_id").value;
         const table = document.getElementById("historyTable");
+
         if (!startup_id) {
           table.innerHTML = `<tr><td colspan="4" class="text-center py-8" style="color:var(--text-muted);">Select a startup to view history</td></tr>`;
           if (chart) {
@@ -222,114 +229,124 @@
           }
           return;
         }
+
         localStorage.setItem("startup_id", startup_id);
+
         const res = await fetch(`http://localhost:5000/history/${startup_id}`);
         const data = await res.json();
+
         table.innerHTML = "";
+
         if (data.length === 0) {
+          table.innerHTML = `<tr><td colspan="4" class="text-center py-8" style="color:var(--text-muted);">No history data</td></tr>`;
           if (chart) {
             chart.destroy();
             chart = null;
           }
-          table.innerHTML = `<tr><td colspan="4" class="text-center py-8" style="color:var(--text-muted);">No history data</td></tr>`;
           return;
         }
 
-        const grouped = {},
-          roundMeta = {},
-          latestRoundStakeholder = {};
-        data.forEach((d) => {
-          const roundKey = d.round_id;
-          const stakeholderKey = `${d.round_id}:${d.stakeholder}`;
-          const currentDate = new Date(d.recorded_at).getTime();
+        const grouped = {};
+        const roundMeta = {};
+        const latestRoundStakeholder = {};
+        const roundOrder = {
+          Initial: 0,
+          "Pre-Seed": 1,
+          Seed: 2,
+          "Series A": 3,
+          "Series B": 4,
+          "Series C": 5,
+        };
+
+        data.forEach((entry) => {
+          const roundKey = entry.round_id;
+          const stakeholderKey = `${entry.round_id}:${entry.stakeholder_type}:${entry.stakeholder}`;
+          const currentDate = new Date(entry.recorded_at).getTime();
+
           if (
             !latestRoundStakeholder[stakeholderKey] ||
             currentDate >
               new Date(
                 latestRoundStakeholder[stakeholderKey].recorded_at,
               ).getTime()
-          )
-            latestRoundStakeholder[stakeholderKey] = d;
+          ) {
+            latestRoundStakeholder[stakeholderKey] = entry;
+          }
+
           if (
             !roundMeta[roundKey] ||
             currentDate > new Date(roundMeta[roundKey].recorded_at).getTime()
-          )
+          ) {
             roundMeta[roundKey] = {
-              round_type: d.round_type || "Snapshot",
-              round_date: d.round_date,
-              recorded_at: d.recorded_at,
+              round_type: entry.round_type || "Round",
+              round_date: entry.round_date,
+              recorded_at: entry.recorded_at,
             };
+          }
         });
-        Object.values(latestRoundStakeholder).forEach((d) => {
-          if (!grouped[d.round_id]) grouped[d.round_id] = [];
-          grouped[d.round_id].push(d);
-        });
-        const sortedRounds = Object.keys(grouped).sort(
-          (a, b) =>
-            new Date(roundMeta[a].recorded_at || 0).getTime() -
-            new Date(roundMeta[b].recorded_at || 0).getTime(),
-        );
 
-        sortedRounds.forEach((time) => {
-          const label = roundMeta[time]?.round_type || `Round`;
-          table.innerHTML += `<tr class="group-header"><td colspan="4">📌 ${label}</td></tr>`;
+        Object.values(latestRoundStakeholder).forEach((entry) => {
+          if (!grouped[entry.round_id]) grouped[entry.round_id] = [];
+          grouped[entry.round_id].push(entry);
+        });
+
+        const sortedRounds = Object.keys(grouped).sort((a, b) => {
+          const roundA = roundMeta[a] || {};
+          const roundB = roundMeta[b] || {};
+          const rankA = roundOrder[roundA.round_type] ?? 99;
+          const rankB = roundOrder[roundB.round_type] ?? 99;
+
+          if (rankA !== rankB) return rankA - rankB;
+
+          return (
+            new Date(roundA.round_date || roundA.recorded_at || 0).getTime() -
+            new Date(roundB.round_date || roundB.recorded_at || 0).getTime()
+          );
+        });
+
+        sortedRounds.forEach((roundId) => {
+          const label = roundMeta[roundId]?.round_type || "Round";
+          table.innerHTML += `<tr class="group-header"><td colspan="4">${label}</td></tr>`;
+
           const unique = {};
-          grouped[time].forEach((d) => {
-            if (!unique[d.stakeholder])
-              unique[d.stakeholder] = {
-                ...d,
-                equity_percentage: Number(d.equity_percentage) || 0,
+          grouped[roundId].forEach((entry) => {
+            const uniqueKey = `${entry.stakeholder_type}:${entry.stakeholder}`;
+            if (!unique[uniqueKey]) {
+              unique[uniqueKey] = {
+                ...entry,
+                equity_percentage: Number(entry.equity_percentage) || 0,
               };
-            else
-              unique[d.stakeholder].equity_percentage +=
-                Number(d.equity_percentage) || 0;
+            } else {
+              unique[uniqueKey].equity_percentage +=
+                Number(entry.equity_percentage) || 0;
+            }
           });
-          Object.values(unique).forEach((d) => {
-            const typeClass =
-              d.stakeholder_type === "Founder" ? "badge-blue" : "badge-green";
-            table.innerHTML += `<tr><td>${d.round_type || "Initial"}</td><td class="font-semibold" style="color:var(--text-primary);">${d.stakeholder}</td><td><span class="badge ${typeClass}">${d.stakeholder_type}</span></td><td><span class="font-bold" style="color:var(--accent-purple);">${Number(d.equity_percentage).toFixed(2)}%</span></td></tr>`;
-          });
+
+          Object.values(unique)
+            .sort((left, right) => left.stakeholder.localeCompare(right.stakeholder))
+            .forEach((entry) => {
+              const typeLabel = entry.stakeholder_label || entry.stakeholder_type;
+              const typeClass =
+                entry.stakeholder_type === "Founder"
+                  ? "badge-blue"
+                  : "badge-green";
+
+              table.innerHTML += `<tr><td>${label}</td><td class="font-semibold" style="color:var(--text-primary);">${entry.stakeholder}</td><td><span class="badge ${typeClass}">${typeLabel}</span></td><td><span class="font-bold" style="color:var(--accent-purple);">${Number(entry.equity_percentage).toFixed(2)}%</span></td></tr>`;
+            });
         });
 
-        // Chart
-        const rounds = sortedRounds;
-        const stakeholders = new Set();
-        rounds.forEach((round) => {
-          grouped[round].forEach((r) => {
-            stakeholders.add(r.stakeholder);
-          });
-        });
-        const stakeholderList = Array.from(stakeholders);
-        const dataMap = {};
-        const firstAppearance = {};
-        stakeholderList.forEach((name) => {
-          dataMap[name] = new Array(rounds.length).fill(0);
-        });
-        rounds.forEach((round, i) => {
-          const unique = {};
-          grouped[round].forEach((r) => {
-            if (!unique[r.stakeholder])
-              unique[r.stakeholder] = Number(r.equity_percentage) || 0;
-            else unique[r.stakeholder] += Number(r.equity_percentage) || 0;
-          });
-          Object.keys(unique).forEach((name) => {
-            dataMap[name][i] = unique[name];
-            if (firstAppearance[name] === undefined) firstAppearance[name] = i;
-          });
-          stakeholderList.forEach((name) => {
-            if (
-              i > 0 &&
-              dataMap[name][i] === 0 &&
-              firstAppearance[name] !== undefined &&
-              firstAppearance[name] < i &&
-              dataMap[name][i - 1] !== 0
-            )
-              dataMap[name][i] = dataMap[name][i - 1];
-          });
-        });
-        const labels = rounds.map(
-          (r) => roundMeta[r]?.round_type || `Snapshot`,
+        drawHistoryChart(sortedRounds, grouped, roundMeta);
+      }
+
+      function drawHistoryChart(rounds, grouped, roundMeta) {
+        const stakeholderList = Array.from(
+          new Set(
+            rounds.flatMap((roundId) =>
+              grouped[roundId].map((entry) => entry.stakeholder),
+            ),
+          ),
         );
+
         const colors = [
           "#6366f1",
           "#10b981",
@@ -339,27 +356,78 @@
           "#0d9488",
           "#ec4899",
         ];
-        const isSingleRound = labels.length === 1;
+
+        const dataMap = {};
+        const firstAppearance = {};
+
+        stakeholderList.forEach((name) => {
+          dataMap[name] = new Array(rounds.length).fill(0);
+        });
+
+        rounds.forEach((roundId, index) => {
+          const unique = {};
+          grouped[roundId].forEach((entry) => {
+            if (!unique[entry.stakeholder]) {
+              unique[entry.stakeholder] = Number(entry.equity_percentage) || 0;
+            } else {
+              unique[entry.stakeholder] += Number(entry.equity_percentage) || 0;
+            }
+          });
+
+          Object.keys(unique).forEach((name) => {
+            dataMap[name][index] = unique[name];
+            if (firstAppearance[name] === undefined) {
+              firstAppearance[name] = index;
+            }
+          });
+
+          stakeholderList.forEach((name) => {
+            if (
+              index > 0 &&
+              dataMap[name][index] === 0 &&
+              firstAppearance[name] !== undefined &&
+              firstAppearance[name] < index &&
+              dataMap[name][index - 1] !== 0
+            ) {
+              dataMap[name][index] = dataMap[name][index - 1];
+            }
+          });
+        });
+
         const datasets = stakeholderList.map((name, idx) => ({
           label: name,
           data: dataMap[name],
-          borderWidth: isSingleRound ? 0 : 2.5,
+          borderWidth: 2.5,
           borderColor: colors[idx % colors.length],
-          backgroundColor: isSingleRound
-            ? colors[idx % colors.length]
-            : colors[idx % colors.length] + "20",
+          backgroundColor: colors[idx % colors.length] + "20",
           tension: 0.3,
-          fill: !isSingleRound,
-          pointRadius: isSingleRound ? 0 : 5,
-          pointHoverRadius: isSingleRound ? 0 : 6,
+          fill: true,
+          pointRadius: 5,
+          pointHoverRadius: 6,
           pointBackgroundColor: colors[idx % colors.length],
+          spanGaps: true,
         }));
+
         if (chart) chart.destroy();
+
+        const maxEquity = Math.max(
+          ...datasets.flatMap((dataset) => dataset.data),
+          0,
+        );
+        const chartMax = Math.min(
+          100,
+          Math.max(30, Math.ceil((maxEquity + 5) / 5) * 5),
+        );
+
         chart = new Chart(document.getElementById("chart"), {
-          type: isSingleRound ? "bar" : "line",
-          data: { labels, datasets },
+          type: "line",
+          data: {
+            labels: rounds.map((roundId) => roundMeta[roundId]?.round_type || "Round"),
+            datasets,
+          },
           options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
               legend: {
                 position: "bottom",
@@ -373,12 +441,10 @@
             scales: {
               y: {
                 beginAtZero: true,
-                max: 100,
-                stacked: false,
+                max: chartMax,
                 grid: { color: "rgba(0,0,0,0.04)" },
               },
               x: {
-                stacked: false,
                 grid: { display: false },
               },
             },
@@ -386,5 +452,24 @@
         });
       }
     </script>
-  </body>
+  <script>
+(function() {
+  var name = localStorage.getItem("username") || "User";
+  var role = localStorage.getItem("role") || "Member";
+  var initials = name.split(" ").map(function(w){return w[0]||"";}).join("").slice(0,2).toUpperCase();
+  var brand = document.querySelector(".sidebar-brand");
+  if (brand) {
+    var chip = document.createElement("div");
+    chip.className = "sidebar-user-chip";
+    chip.innerHTML = "<div class=\"sidebar-user-avatar\">" + initials + "</div><div class=\"sidebar-user-info\"><div class=\"sidebar-user-name\">" + name + "</div><div class=\"sidebar-user-role\">" + role + "</div></div>";
+    var title = brand.querySelector(".sidebar-title");
+    if (title && title.nextSibling) {
+      brand.insertBefore(chip, title.nextSibling);
+    } else {
+      brand.appendChild(chip);
+    }
+  }
+})();
+</script>
+</body>
 </html>

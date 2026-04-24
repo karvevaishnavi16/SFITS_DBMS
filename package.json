@@ -4,7 +4,7 @@
   "description": "# A web application to track startup funding rounds, investor ownership and equity dilution over time.",
   "main": "Backend/server.js",
   "scripts": {
-    "start": "node Backend/server.js",
+    "start": "node -e \"console.log('Starting SFITS from:', process.cwd())\" && node Backend/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

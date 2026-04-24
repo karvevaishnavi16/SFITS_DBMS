@@ -97,7 +97,7 @@
 
         <!-- Startup Selector -->
         <div
-          class="rounded-2xl p-4 mb-6 animate-fade-in-up delay-1 flex items-center gap-4"
+          class="startup-toolbar rounded-2xl p-4 mb-6 animate-fade-in-up delay-1 flex items-center gap-4"
           style="
             background: var(--bg-card);
             border: 1px solid var(--border-glass);
@@ -117,10 +117,10 @@
           ></select>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div class="content-split-grid grid grid-cols-1 lg:grid-cols-2 gap-5">
           <!-- Table -->
           <div
-            class="rounded-2xl p-6 animate-fade-in-up delay-2"
+            class="panel-card panel-card--table rounded-2xl p-6 animate-fade-in-up delay-2"
             style="
               background: var(--bg-card);
               border: 1px solid var(--border-glass);
@@ -157,7 +157,7 @@
 
           <!-- Chart -->
           <div
-            class="rounded-2xl p-6 animate-fade-in-up delay-3"
+            class="panel-card panel-card--chart rounded-2xl p-6 animate-fade-in-up delay-3"
             style="
               background: var(--bg-card);
               border: 1px solid var(--border-glass);
@@ -178,7 +178,9 @@
                 Equity Visualization
               </h2>
             </div>
-            <canvas id="capChart"></canvas>
+            <div class="chart-shell">
+              <canvas id="capChart"></canvas>
+            </div>
           </div>
         </div>
       </div>
@@ -258,9 +260,10 @@
         });
         const latestData = Object.values(unique);
         latestData.forEach((row) => {
+          const typeLabel = row.stakeholder_label || row.stakeholder_type;
           const typeClass =
             row.stakeholder_type === "Founder" ? "badge-blue" : "badge-green";
-          table.innerHTML += `<tr><td class="font-semibold" style="color:var(--text-primary);">${row.stakeholder}</td><td><span class="badge ${typeClass}">${row.stakeholder_type}</span></td><td><span class="font-bold" style="color:var(--accent-purple);">${Number(row.equity_percentage).toFixed(2)}%</span></td></tr>`;
+          table.innerHTML += `<tr><td class="font-semibold" style="color:var(--text-primary);">${row.stakeholder}</td><td><span class="badge ${typeClass}">${typeLabel}</span></td><td><span class="font-bold" style="color:var(--accent-purple);">${Number(row.equity_percentage).toFixed(2)}%</span></td></tr>`;
         });
         drawChart(latestData);
       }
@@ -291,6 +294,7 @@
           },
           options: {
             responsive: true,
+            maintainAspectRatio: false,
             cutout: "55%",
             plugins: {
               legend: {
@@ -306,5 +310,24 @@
         });
       }
     </script>
-  </body>
+  <script>
+(function() {
+  var name = localStorage.getItem("username") || "User";
+  var role = localStorage.getItem("role") || "Member";
+  var initials = name.split(" ").map(function(w){return w[0]||"";}).join("").slice(0,2).toUpperCase();
+  var brand = document.querySelector(".sidebar-brand");
+  if (brand) {
+    var chip = document.createElement("div");
+    chip.className = "sidebar-user-chip";
+    chip.innerHTML = "<div class=\"sidebar-user-avatar\">" + initials + "</div><div class=\"sidebar-user-info\"><div class=\"sidebar-user-name\">" + name + "</div><div class=\"sidebar-user-role\">" + role + "</div></div>";
+    var title = brand.querySelector(".sidebar-title");
+    if (title && title.nextSibling) {
+      brand.insertBefore(chip, title.nextSibling);
+    } else {
+      brand.appendChild(chip);
+    }
+  }
+})();
+</script>
+</body>
 </html>

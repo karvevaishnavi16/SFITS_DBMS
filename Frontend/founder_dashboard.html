@@ -20,7 +20,9 @@
             <i class="ri-building-2-line"></i>
             <span>Founder Panel</span>
           </div>
-        <p class="sidebar-role-note">Manage your startups, ownership, rounds, and investor momentum from one focused dashboard.</p>
+          <p class="sidebar-role-note">
+            Manage your startups, ownership, rounds, and investor momentum from one focused dashboard.
+          </p>
         </div>
         <ul class="sidebar-nav">
           <li><a href="#" class="active"><span class="nav-icon"><i class="ri-dashboard-line"></i></span> Dashboard</a></li>
@@ -36,24 +38,26 @@
       </nav>
 
       <div class="main-content">
-        <div class="rounded-2xl p-4 mb-5 animate-fade-in-down" style="background:linear-gradient(135deg, rgba(99,102,241,0.08), rgba(139,92,246,0.08));border:1px solid rgba(99,102,241,0.15);box-shadow:var(--shadow-sm);">
-          <div class="flex justify-between items-center flex-wrap gap-3">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg" style="background:var(--gradient-fresh);color:#fff;font-weight:bold;">🏢</div>
-              <div>
-                <p class="text-xs font-semibold uppercase tracking-wider" style="color:var(--text-muted);">Currently Viewing</p>
-                <h2 id="startupNameDisplay" class="text-lg font-extrabold" style="color:var(--text-primary);">Loading...</h2>
-              </div>
+        <div
+          class="startup-toolbar dashboard-toolbar rounded-2xl p-4 mb-5 animate-fade-in-down"
+          style="background:linear-gradient(135deg, rgba(99,102,241,0.08), rgba(139,92,246,0.08));border:1px solid rgba(99,102,241,0.15);box-shadow:var(--shadow-sm);"
+        >
+          <div class="dashboard-toolbar__identity">
+            <div class="dashboard-toolbar__icon">S</div>
+            <div class="dashboard-toolbar__copy">
+              <p class="dashboard-toolbar__label">Currently Viewing</p>
+              <h2 id="startupNameDisplay" class="dashboard-toolbar__title">Loading...</h2>
             </div>
-            <div class="flex items-center gap-3">
-              <div class="relative">
-                <select id="startupSwitcher" onchange="switchStartup(this.value)" style="padding:8px 32px 8px 12px;border-radius:12px;border:1px solid var(--border-glass);background:var(--bg-card);color:var(--text-primary);font-size:13px;font-weight:600;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236366f1%22 stroke-width=%222%22><polyline points=%226 9 12 15 18 9%22/></svg>');background-repeat:no-repeat;background-position:right 10px center;min-width:180px;">
-                  <option value="">Switch Startup...</option>
-                </select>
-              </div>
-              <div class="px-4 py-2 rounded-xl text-xs font-semibold" style="background:rgba(99,102,241,0.08);color:var(--accent-indigo);border:1px solid rgba(99,102,241,0.15);">
-                📅 <span id="dateDisplay"></span>
-              </div>
+          </div>
+          <div class="dashboard-toolbar__actions">
+            <div class="dashboard-toolbar__select-wrap">
+              <select id="startupSwitcher" onchange="switchStartup(this.value)" class="dashboard-toolbar__select">
+                <option value="">Switch Startup...</option>
+              </select>
+            </div>
+            <div class="dashboard-toolbar__date">
+              <span>Today</span>
+              <span id="dateDisplay"></span>
             </div>
           </div>
         </div>
@@ -61,13 +65,15 @@
         <div class="flex justify-between items-center mb-6 animate-fade-in-down" style="animation-delay:0.1s;">
           <div>
             <div class="role-badge founder mb-2"><i class="ri-building-line"></i> Founder Panel</div>
-            <h1 class="text-2xl font-extrabold tracking-tight" style="color:var(--text-primary);">Welcome back, <span style="background:var(--gradient-fresh);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Founder</span></h1>
+            <h1 class="text-2xl font-extrabold tracking-tight" style="color:var(--text-primary);">
+              Welcome back, <span style="background:var(--gradient-fresh);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Founder</span>
+            </h1>
             <p class="text-sm mt-1" style="color:var(--text-muted);">Here's how your startup is performing today</p>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
-          <div class="relative overflow-hidden rounded-2xl p-5 animate-fade-in-up delay-1" style="background:var(--bg-card);border:1px solid var(--border-glass);box-shadow:var(--shadow-sm);">
+        <div class="stats-grid stats-grid--top grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
+          <div class="dashboard-stat-card relative overflow-hidden rounded-2xl p-5 animate-fade-in-up delay-1" style="background:var(--bg-card);border:1px solid var(--border-glass);box-shadow:var(--shadow-sm);">
             <div class="absolute top-0 left-0 w-full h-1 rounded-t-2xl" style="background:var(--gradient-blue);"></div>
             <div class="flex items-start justify-between">
               <div>
@@ -82,7 +88,7 @@
             <p id="fundingPercent" class="text-xs mt-2" style="color:var(--text-muted);">0% funded</p>
           </div>
 
-          <div class="relative overflow-hidden rounded-2xl p-5 animate-fade-in-up delay-2" style="background:var(--bg-card);border:1px solid var(--border-glass);box-shadow:var(--shadow-sm);">
+          <div class="dashboard-stat-card relative overflow-hidden rounded-2xl p-5 animate-fade-in-up delay-2" style="background:var(--bg-card);border:1px solid var(--border-glass);box-shadow:var(--shadow-sm);">
             <div class="absolute top-0 left-0 w-full h-1 rounded-t-2xl" style="background:var(--gradient-green);"></div>
             <div class="flex items-start justify-between">
               <div>
@@ -94,7 +100,7 @@
             <p class="text-xs mt-4" style="color:var(--text-muted);">Active investors in your startup</p>
           </div>
 
-          <div class="relative overflow-hidden rounded-2xl p-5 animate-fade-in-up delay-3" style="background:var(--bg-card);border:1px solid var(--border-glass);box-shadow:var(--shadow-sm);">
+          <div class="dashboard-stat-card relative overflow-hidden rounded-2xl p-5 animate-fade-in-up delay-3" style="background:var(--bg-card);border:1px solid var(--border-glass);box-shadow:var(--shadow-sm);">
             <div class="absolute top-0 left-0 w-full h-1 rounded-t-2xl" style="background:var(--gradient-purple);"></div>
             <div class="flex items-start justify-between">
               <div>
@@ -107,8 +113,8 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <div class="relative overflow-hidden rounded-2xl p-5 animate-fade-in-up delay-4" style="background:var(--bg-card);border:1px solid var(--border-glass);box-shadow:var(--shadow-sm);">
+        <div class="stats-grid stats-grid--bottom grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div class="dashboard-stat-card relative overflow-hidden rounded-2xl p-5 animate-fade-in-up delay-4" style="background:var(--bg-card);border:1px solid var(--border-glass);box-shadow:var(--shadow-sm);">
             <div class="absolute top-0 left-0 w-full h-1 rounded-t-2xl" style="background:var(--gradient-teal);"></div>
             <div class="flex items-start justify-between">
               <div>
@@ -119,7 +125,7 @@
             </div>
           </div>
 
-          <div class="relative overflow-hidden rounded-2xl p-5 animate-fade-in-up delay-5" style="background:var(--bg-card);border:1px solid var(--border-glass);box-shadow:var(--shadow-sm);">
+          <div class="dashboard-stat-card relative overflow-hidden rounded-2xl p-5 animate-fade-in-up delay-5" style="background:var(--bg-card);border:1px solid var(--border-glass);box-shadow:var(--shadow-sm);">
             <div class="absolute top-0 left-0 w-full h-1 rounded-t-2xl" style="background:var(--gradient-sunset);"></div>
             <div class="flex items-start justify-between">
               <div>
@@ -130,7 +136,7 @@
             </div>
           </div>
 
-          <div class="relative overflow-hidden rounded-2xl p-5 animate-fade-in-up delay-6" style="background:var(--bg-card);border:1px solid var(--border-glass);box-shadow:var(--shadow-sm);">
+          <div class="dashboard-stat-card relative overflow-hidden rounded-2xl p-5 animate-fade-in-up delay-6" style="background:var(--bg-card);border:1px solid var(--border-glass);box-shadow:var(--shadow-sm);">
             <div class="absolute top-0 left-0 w-full h-1 rounded-t-2xl" style="background:var(--gradient-fresh);"></div>
             <div class="flex items-start justify-between">
               <div>
@@ -144,7 +150,7 @@
 
         <div class="mt-6 animate-fade-in-up delay-6">
           <h2 class="text-sm font-bold uppercase tracking-wider mb-3" style="color:var(--text-muted);">Quick Actions</h2>
-          <div class="flex gap-3 flex-wrap">
+          <div class="quick-actions-row flex gap-3 flex-wrap">
             <a href="pages/startups.html" class="btn btn-primary btn-sm" style="text-decoration:none;"><i class="ri-rocket-line"></i> Manage Startups</a>
             <a href="pages/funding.html" class="btn btn-purple btn-sm" style="text-decoration:none;"><i class="ri-bank-card-line"></i> Add Funding</a>
             <a href="pages/captable.html" class="btn btn-green btn-sm" style="text-decoration:none;"><i class="ri-pie-chart-line"></i> View Cap Table</a>
@@ -154,12 +160,20 @@
     </div>
 
     <script>
-      document.getElementById('dateDisplay').textContent = new Date().toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+      document.getElementById("dateDisplay").textContent = new Date().toLocaleDateString("en-IN", {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
 
       window.onload = function () {
         const user_id = localStorage.getItem("user_id");
         const startup_id = localStorage.getItem("startup_id");
-        if (!user_id) { window.location.href = "login.html"; return; }
+        if (!user_id) {
+          window.location.href = "login.html";
+          return;
+        }
 
         loadStartupSwitcher(user_id, startup_id);
 
@@ -182,12 +196,14 @@
           if (!res.ok) return;
           const startups = await res.json();
           const switcher = document.getElementById("startupSwitcher");
-          switcher.innerHTML = '<option value="">Switch Startup...</option>';
+          switcher.innerHTML = '<option value="">Select Startup...</option>';
           startups.forEach((s) => {
             const opt = document.createElement("option");
-            opt.value = JSON.stringify({ id: s.startup_id, name: s.startup_name });
-            opt.textContent = s.startup_name + (s.stage ? ` (${s.stage})` : '');
-            if (currentStartupId && s.startup_id === currentStartupId) opt.disabled = true;
+            opt.value = s.startup_id;
+            opt.textContent = s.startup_name + (s.stage ? ` (${s.stage})` : "");
+            if (currentStartupId && s.startup_id === currentStartupId) {
+              opt.selected = true;
+            }
             switcher.appendChild(opt);
           });
         } catch (err) {
@@ -198,23 +214,24 @@
       function switchStartup(val) {
         if (!val) return;
         try {
-          const { id, name } = JSON.parse(val);
-          localStorage.setItem("startup_id", id);
-          localStorage.setItem("startup_name", name);
-          document.getElementById("startupNameDisplay").textContent = name;
-          document.getElementById("startupSwitcher").value = "";
-          loadDashboard(id);
-          loadStartupSwitcher(localStorage.getItem("user_id"), id);
+          const switcher = document.getElementById("startupSwitcher");
+          const selectedOption = switcher.options[switcher.selectedIndex];
+          const startupName = selectedOption.textContent.replace(/\s+\(.+\)$/, "");
+          localStorage.setItem("startup_id", val);
+          localStorage.setItem("startup_name", startupName);
+          document.getElementById("startupNameDisplay").textContent = startupName;
+          loadDashboard(val);
+          loadStartupSwitcher(localStorage.getItem("user_id"), val);
         } catch (e) {
           console.error(e);
         }
       }
 
       function formatCurrency(value) {
-        if (!value) return "₹0";
-        if (value >= 1000000) return "₹" + (value / 1000000).toFixed(2) + "M";
-        if (value >= 1000) return "₹" + (value / 1000).toFixed(1) + "K";
-        return "₹" + value;
+        if (!value) return "Rs 0";
+        if (value >= 1000000) return "Rs " + (value / 1000000).toFixed(2) + "M";
+        if (value >= 1000) return "Rs " + (value / 1000).toFixed(1) + "K";
+        return "Rs " + value;
       }
 
       async function loadDashboard(startup_id) {
@@ -226,10 +243,7 @@
             throw new Error(`Server error: ${res.status} ${errorText}`);
           }
           const data = await res.json();
-          if (!data) {
-            console.error("No data");
-            return;
-          }
+          if (!data) return;
 
           if (data.startup_name) {
             document.getElementById("startupNameDisplay").textContent = data.startup_name;
@@ -253,5 +267,24 @@
         }
       }
     </script>
-  </body>
+  <script>
+(function() {
+  var name = localStorage.getItem("username") || "User";
+  var role = localStorage.getItem("role") || "Member";
+  var initials = name.split(" ").map(function(w){return w[0]||"";}).join("").slice(0,2).toUpperCase();
+  var brand = document.querySelector(".sidebar-brand");
+  if (brand) {
+    var chip = document.createElement("div");
+    chip.className = "sidebar-user-chip";
+    chip.innerHTML = "<div class=\"sidebar-user-avatar\">" + initials + "</div><div class=\"sidebar-user-info\"><div class=\"sidebar-user-name\">" + name + "</div><div class=\"sidebar-user-role\">" + role + "</div></div>";
+    var title = brand.querySelector(".sidebar-title");
+    if (title && title.nextSibling) {
+      brand.insertBefore(chip, title.nextSibling);
+    } else {
+      brand.appendChild(chip);
+    }
+  }
+})();
+</script>
+</body>
 </html>
