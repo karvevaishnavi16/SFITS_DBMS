@@ -716,44 +716,225 @@ app.post("/addInvestment", (req, res) => {
 });
 // ================= CAP TABLE =================
 app.get("/history/:startup_id", (req, res) => {
+  const startupId = req.params.startup_id;
+
   db.query(
-    `SELECT 
-      eh.round_id,
-      fr.round_type,
-      fr.round_date,
-      COALESCE(f.founder_name, i.investor_name) AS stakeholder,
-      eh.stakeholder_type,
-      eh.equity_percentage,
-      eh.recorded_at
-    FROM EQUITY_HISTORY eh
-    LEFT JOIN FOUNDER f ON eh.stakeholder_id = f.founder_id
-    LEFT JOIN INVESTOR i ON eh.stakeholder_id = i.investor_id
-    LEFT JOIN FUNDING_ROUND fr ON eh.round_id = fr.round_id
-    WHERE eh.startup_id = ?
-    ORDER BY
-      CASE fr.round_type
-        WHEN 'Initial' THEN 0
-        WHEN 'Pre-Seed' THEN 1
-        WHEN 'Seed' THEN 2
-        WHEN 'Series A' THEN 3
-        WHEN 'Series B' THEN 4
-        WHEN 'Series C' THEN 5
-        ELSE 6
-      END,
-      fr.round_date ASC,
-      eh.recorded_at ASC`,
-    [req.params.startup_id],
-    (err, result) => {
-      if (err) return res.status(500).send(err.sqlMessage);
-      res.json(result);
+    `SELECT startup_id, startup_name, founded_year
+     FROM STARTUP
+     WHERE startup_id = ?`,
+    [startupId],
+    (startupErr, startupRes) => {
+      if (startupErr) return res.status(500).send(startupErr.sqlMessage);
+      if (startupRes.length === 0) return res.json([]);
+
+      db.query(
+        `SELECT founder_id, founder_name, founder_role, initial_equity
+         FROM FOUNDER
+         WHERE startup_id = ?
+         ORDER BY founder_name`,
+        [startupId],
+        (founderErr, founders) => {
+          if (founderErr) return res.status(500).send(founderErr.sqlMessage);
+
+          db.query(
+            `SELECT round_id, round_type, round_date
+             FROM FUNDING_ROUND
+             WHERE startup_id = ?
+             ORDER BY
+               CASE round_type
+                 WHEN 'Initial' THEN 0
+                 WHEN 'Pre-Seed' THEN 1
+                 WHEN 'Seed' THEN 2
+                 WHEN 'Series A' THEN 3
+                 WHEN 'Series B' THEN 4
+                 WHEN 'Series C' THEN 5
+                 ELSE 6
+               END,
+               round_date ASC`,
+            [startupId],
+            (roundErr, rounds) => {
+              if (roundErr) return res.status(500).send(roundErr.sqlMessage);
+
+              db.query(
+                `SELECT
+                   i.round_id,
+                   i.investor_id,
+                   inv.investor_name,
+                   i.equity_acquired
+                 FROM INVESTMENT i
+                 JOIN FUNDING_ROUND fr ON i.round_id = fr.round_id
+                 JOIN INVESTOR inv ON i.investor_id = inv.investor_id
+                 WHERE fr.startup_id = ?
+                 ORDER BY fr.round_date ASC, inv.investor_name ASC`,
+                [startupId],
+                (investmentErr, investments) => {
+                  if (investmentErr) {
+                    return res.status(500).send(investmentErr.sqlMessage);
+                  }
+
+                  const startup = startupRes[0];
+                  const historyRows = [];
+                  const ownership = new Map();
+                  const roundInvestments = investments.reduce((acc, investment) => {
+                    if (!acc[investment.round_id]) acc[investment.round_id] = [];
+                    acc[investment.round_id].push(investment);
+                    return acc;
+                  }, {});
+
+                  founders.forEach((founder) => {
+                    ownership.set(`Founder:${founder.founder_id}`, {
+                      stakeholder_id: founder.founder_id,
+                      stakeholder: founder.founder_name,
+                      stakeholder_type: "Founder",
+                      stakeholder_label: normalizeFounderLabel(founder.founder_role),
+                      equity_percentage: Number(founder.initial_equity) || 0,
+                    });
+                  });
+
+                  const hasExplicitInitial = rounds.some(
+                    (round) => round.round_type === "Initial",
+                  );
+
+                  if (ownership.size > 0 && !hasExplicitInitial) {
+                    const initialDate = `${startup.founded_year || new Date().getFullYear()}-01-01`;
+                    historyRows.push(
+                      ...buildSnapshotRows({
+                        round_id: `INIT-${startupId}`,
+                        round_type: "Initial",
+                        round_date: initialDate,
+                        ownership,
+                      }),
+                    );
+                  }
+
+                  rounds.forEach((round) => {
+                    const roundEntries = roundInvestments[round.round_id] || [];
+
+                    if (round.round_type === "Initial") {
+                      if (ownership.size === 0 && roundEntries.length === 0) {
+                        return;
+                      }
+
+                      if (roundEntries.length > 0) {
+                        applyInvestmentsToOwnership(ownership, roundEntries);
+                      }
+
+                      historyRows.push(
+                        ...buildSnapshotRows({
+                          round_id: round.round_id,
+                          round_type: round.round_type,
+                          round_date: round.round_date,
+                          ownership,
+                        }),
+                      );
+                      return;
+                    }
+
+                    if (roundEntries.length > 0) {
+                      applyInvestmentsToOwnership(ownership, roundEntries);
+                    }
+
+                    historyRows.push(
+                      ...buildSnapshotRows({
+                        round_id: round.round_id,
+                        round_type: round.round_type,
+                        round_date: round.round_date,
+                        ownership,
+                      }),
+                    );
+                  });
+
+                  res.json(historyRows);
+                },
+              );
+            },
+          );
+        },
+      );
     },
   );
+
+  function applyInvestmentsToOwnership(currentOwnership, roundEntries) {
+    const totalRoundEquity = roundEntries.reduce(
+      (sum, entry) => sum + (Number(entry.equity_acquired) || 0),
+      0,
+    );
+
+    const dilutionFactor = (100 - totalRoundEquity) / 100;
+
+    Array.from(currentOwnership.values()).forEach((holder) => {
+      holder.equity_percentage = Number(
+        (holder.equity_percentage * dilutionFactor).toFixed(4),
+      );
+    });
+
+    roundEntries.forEach((entry) => {
+      const key = `Investor:${entry.investor_id}`;
+      const acquired = Number(entry.equity_acquired) || 0;
+
+      if (currentOwnership.has(key)) {
+        currentOwnership.get(key).equity_percentage = Number(
+          (currentOwnership.get(key).equity_percentage + acquired).toFixed(4),
+        );
+      } else {
+        currentOwnership.set(key, {
+          stakeholder_id: entry.investor_id,
+          stakeholder: entry.investor_name,
+          stakeholder_type: "Investor",
+          equity_percentage: acquired,
+        });
+      }
+    });
+  }
+
+  function buildSnapshotRows({ round_id, round_type, round_date, ownership }) {
+    return Array.from(ownership.values())
+      .filter((holder) => holder.equity_percentage > 0)
+      .sort((left, right) => left.stakeholder.localeCompare(right.stakeholder))
+      .map((holder, index) => ({
+        round_id,
+        round_type,
+        round_date,
+        stakeholder_id: holder.stakeholder_id,
+        stakeholder: holder.stakeholder,
+        stakeholder_type: holder.stakeholder_type,
+        stakeholder_label: holder.stakeholder_label || holder.stakeholder_type,
+        equity_percentage: Number(holder.equity_percentage.toFixed(2)),
+        recorded_at: `${round_date}T00:00:${String(index).padStart(2, "0")}.000Z`,
+      }));
+  }
+
+  function normalizeFounderLabel(founderRole) {
+    const roleText = String(founderRole || "").trim();
+    const normalizedRole = roleText.toLowerCase();
+
+    if (!normalizedRole) return "Founder";
+    if (normalizedRole.includes("co-founder") || normalizedRole.includes("cofounder")) {
+      return roleText;
+    }
+    if (normalizedRole.includes("founder")) {
+      return roleText;
+    }
+    return `Co-Founder & ${roleText}`;
+  }
 });
 
 // ================= EXTRA (USED IN UI) =================
 app.get("/allRounds", (req, res) => {
   db.query(
-    `SELECT fr.round_id, fr.round_type, s.startup_id, s.startup_name
+    `SELECT
+       fr.round_id,
+       fr.round_type,
+       fr.round_date,
+       fr.valuation,
+       fr.total_amount_raised AS target_funding,
+       s.startup_id,
+       s.startup_name,
+       s.stage,
+       s.city,
+       s.country,
+       COALESCE(inv_summary.amount_raised, 0)   AS amount_raised,
+       COALESCE(inv_summary.investor_count, 0)  AS investor_count
      FROM FUNDING_ROUND fr
      JOIN STARTUP s ON fr.startup_id = s.startup_id
      JOIN (
@@ -762,6 +943,13 @@ app.get("/allRounds", (req, res) => {
        GROUP BY startup_id
      ) latest ON fr.startup_id = latest.startup_id
        AND fr.round_date = latest.max_date
+     LEFT JOIN (
+       SELECT i.round_id,
+              SUM(i.amount_invested)       AS amount_raised,
+              COUNT(DISTINCT i.investor_id) AS investor_count
+       FROM INVESTMENT i
+       GROUP BY i.round_id
+     ) inv_summary ON inv_summary.round_id = fr.round_id
      ORDER BY s.startup_name`,
     (err, result) => {
       if (err) return res.status(500).send(err.sqlMessage);
@@ -777,6 +965,16 @@ app.get("/capTable/:startup_id", (req, res) => {
     `SELECT
       COALESCE(f.founder_name, i.investor_name) AS stakeholder,
       eh.stakeholder_type,
+      CASE
+        WHEN eh.stakeholder_type = 'Founder' THEN
+          CASE
+            WHEN TRIM(COALESCE(f.founder_role, '')) = '' THEN 'Founder'
+            WHEN LOWER(COALESCE(f.founder_role, '')) LIKE '%co-founder%' OR LOWER(COALESCE(f.founder_role, '')) LIKE '%cofounder%' THEN f.founder_role
+            WHEN LOWER(COALESCE(f.founder_role, '')) LIKE '%founder%' THEN f.founder_role
+            ELSE CONCAT('Co-Founder & ', f.founder_role)
+          END
+        ELSE eh.stakeholder_type
+      END AS stakeholder_label,
       SUM(eh.equity_percentage) AS equity_percentage
     FROM (
       SELECT *,
@@ -790,7 +988,7 @@ app.get("/capTable/:startup_id", (req, res) => {
     LEFT JOIN FOUNDER f ON eh.stakeholder_id = f.founder_id
     LEFT JOIN INVESTOR i ON eh.stakeholder_id = i.investor_id
     WHERE eh.rn = 1
-    GROUP BY stakeholder, eh.stakeholder_type`,
+    GROUP BY stakeholder, eh.stakeholder_type, stakeholder_label`,
     [startup_id],
     (err2, result) => {
       if (err2) return res.status(500).send(err2.sqlMessage);
@@ -937,4 +1135,6 @@ app.get("/startupDashboard/:startup_id", (req, res) => {
 // ================= SERVER =================
 app.listen(5000, () => {
   console.log("Server running on http://localhost:5000");
+  console.log("Backend file:", __filename);
+  console.log("Working directory:", process.cwd());
 });
