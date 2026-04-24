@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Startups - SFITS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../styles.css" />
+    <script src="../theme.js"></script>
+  </head>
+  <body>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="app-layout">
+      <nav class="sidebar founder">
+        <div class="sidebar-brand">
+          <div class="sidebar-title">SFITS</div>
+          <div class="sidebar-subtitle">
+            <i class="ri-sparkling-2-line"></i> Workspace
+          </div>
+          <div class="sidebar-role-chip">
+            <i class="ri-building-2-line"></i>
+            <span>Founder Panel</span>
+          </div>
+          <p class="sidebar-role-note">
+            Manage your startups, ownership, rounds, and investor momentum from
+            one focused dashboard.
+          </p>
+        </div>
+        <ul class="sidebar-nav">
+          <li>
+            <a href="../founder_dashboard.html"
+              ><span class="nav-icon"><i class="ri-dashboard-line"></i></span>
+              Dashboard</a
+            >
+          </li>
+          <li>
+            <a href="startups.html" class="active"
+              ><span class="nav-icon"><i class="ri-rocket-line"></i></span> My
+              Startups</a
+            >
+          </li>
+          <li>
+            <a href="founders.html"
+              ><span class="nav-icon"><i class="ri-team-line"></i></span>
+              Founders</a
+            >
+          </li>
+          <li>
+            <a href="funding.html"
+              ><span class="nav-icon"
+                ><i class="ri-money-dollar-circle-line"></i
+              ></span>
+              Funding</a
+            >
+          </li>
+          <li>
+            <a href="captable.html"
+              ><span class="nav-icon"><i class="ri-pie-chart-line"></i></span>
+              Cap Table</a
+            >
+          </li>
+          <li>
+            <a href="history.html"
+              ><span class="nav-icon"><i class="ri-time-line"></i></span>
+              History</a
+            >
+          </li>
+        </ul>
+        <div class="sidebar-bottom">
+          <a href="../welcome.html" onclick="localStorage.clear()"
+            ><i class="ri-logout-box-r-line"></i> Logout</a
+          >
+        </div>
+      </nav>
+
+      <div class="main-content">
+        <div
+          class="workspace-header-card animate-fade-in-down"
+        >
+          <div>
+            <div class="role-badge founder mb-2">
+              <i class="ri-building-line"></i> Founder Panel
+            </div>
+            <h1
+              class="text-2xl font-extrabold tracking-tight"
+              style="color: var(--text-primary)"
+            >
+              Startup Management
+            </h1>
+            <p class="text-sm mt-1" style="color: var(--text-muted)">
+              Register and manage your startups
+            </p>
+          </div>
+          <div class="workspace-header-meta">
+            <div class="workspace-header-icon"><i class="ri-rocket-line"></i></div>
+            <div class="workspace-header-copy">
+              <span>Workspace Focus</span>
+              <strong>Startup Setup</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- FORM -->
+        <div
+          class="panel-card rounded-2xl p-6 mb-6 animate-fade-in-up delay-1"
+          style="
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            box-shadow: var(--shadow-sm);
+          "
+        >
+          <div class="flex items-center gap-2 mb-5">
+            <div
+              class="w-8 h-8 rounded-lg flex items-center justify-center text-sm text-indigo-600"
+              style="background: rgba(99, 102, 241, 0.1)"
+            >
+              <i class="ri-add-line"></i>
+            </div>
+            <h2 class="text-base font-bold" style="color: var(--text-primary)">
+              Add New Startup
+            </h2>
+          </div>
+          <form
+            id="startupForm"
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+          >
+            <div>
+              <label
+                class="block text-xs font-semibold mb-1"
+                style="color: var(--text-secondary)"
+                >Startup Name</label
+              ><input
+                id="name"
+                type="text"
+                placeholder="e.g. TechVenture"
+                required
+              />
+            </div>
+            <div>
+              <label
+                class="block text-xs font-semibold mb-1"
+                style="color: var(--text-secondary)"
+                >Founded Year</label
+              ><input id="year" type="number" placeholder="2024" required />
+            </div>
+            <div>
+              <label
+                class="block text-xs font-semibold mb-1"
+                style="color: var(--text-secondary)"
+                >Stage</label
+              >
+              <select id="stage" required>
+                <option value="">Select Stage</option>
+                <option>Pre-Seed</option>
+                <option>Seed</option>
+                <option>Series A</option>
+                <option>Series B</option>
+                <option>Series C</option>
+              </select>
+            </div>
+            <div>
+              <label
+                class="block text-xs font-semibold mb-1"
+                style="color: var(--text-secondary)"
+                >Industry</label
+              >
+              <select id="industry" required>
+                <option value="">Select Industry</option>
+                <option value="I001">FinTech</option>
+                <option value="I002">HealthTech</option>
+                <option value="I003">EdTech</option>
+              </select>
+            </div>
+            <div>
+              <label
+                class="block text-xs font-semibold mb-1"
+                style="color: var(--text-secondary)"
+                >City</label
+              ><input id="city" type="text" placeholder="Mumbai" />
+            </div>
+            <div>
+              <label
+                class="block text-xs font-semibold mb-1"
+                style="color: var(--text-secondary)"
+                >State</label
+              ><input id="state" type="text" placeholder="Maharashtra" />
+            </div>
+            <div>
+              <label
+                class="block text-xs font-semibold mb-1"
+                style="color: var(--text-secondary)"
+                >Country</label
+              ><input id="country" type="text" placeholder="India" />
+            </div>
+            <div class="flex items-end">
+              <button class="btn btn-gradient w-full">
+                <i class="ri-rocket-line"></i> Add Startup
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- TABLE -->
+        <div
+          class="panel-card rounded-2xl p-6 animate-fade-in-up delay-2"
+          style="
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            box-shadow: var(--shadow-sm);
+          "
+        >
+          <div class="flex items-center gap-2 mb-5">
+            <div
+              class="w-8 h-8 rounded-lg flex items-center justify-center text-sm text-emerald-600"
+              style="background: rgba(16, 185, 129, 0.1)"
+            >
+              <i class="ri-file-list-3-line"></i>
+            </div>
+            <h2 class="text-base font-bold" style="color: var(--text-primary)">
+              Your Startups
+            </h2>
+          </div>
+          <div class="overflow-x-auto">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Year</th>
+                  <th>Stage</th>
+                  <th>City</th>
+                  <th>Country</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="startupTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const table = document.getElementById("startupTable");
+      window.onload = function () {
+        const user_id = localStorage.getItem("user_id");
+        if (!user_id) {
+          alert("Please login first");
+          window.location.href = "../login.html";
+          return;
+        }
+        loadStartups();
+      };
+
+      async function loadStartups() {
+        try {
+          const user_id = localStorage.getItem("user_id");
+          const res = await fetch(`http://localhost:5000/startups/${user_id}`);
+          if (!res.ok) throw new Error("API failed");
+          const data = await res.json();
+          table.innerHTML = "";
+          if (data.length === 0) {
+            table.innerHTML = `<tr><td colspan="6" class="text-center py-8" style="color:var(--text-muted);">No startups yet - add your first one above.</td></tr>`;
+            return;
+          }
+          data.forEach((s) => {
+            table.innerHTML += `<tr class="hover:bg-opacity-50 transition-all">
+              <td class="font-semibold" style="color:var(--text-primary);">${s.startup_name}</td>
+              <td>${s.founded_year}</td>
+              <td><span class="badge badge-blue">${s.stage}</span></td>
+              <td>${s.city || "-"}</td><td>${s.country || "-"}</td>
+              <td><button onclick="selectStartup('${s.startup_id}', '${s.startup_name.replace(/'/g, "\\'")}')" class="btn btn-primary btn-sm">✓ Select</button></td>
+            </tr>`;
+          });
+        } catch (err) {
+          console.error("Error:", err);
+        }
+      }
+
+      document
+        .getElementById("startupForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+          try {
+            const user_id = localStorage.getItem("user_id");
+            const industry = document.getElementById("industry").value;
+            if (!industry) {
+              alert("Please select industry");
+              return;
+            }
+            const data = {
+              startup_name: document.getElementById("name").value,
+              founded_year: document.getElementById("year").value,
+              stage: document.getElementById("stage").value,
+              industry_id: industry,
+              city: document.getElementById("city").value,
+              state: document.getElementById("state").value,
+              country: document.getElementById("country").value,
+              user_id,
+            };
+            const res = await fetch("http://localhost:5000/addStartup", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(data),
+            });
+            const msg = await res.text();
+            if (!res.ok) throw new Error(msg);
+            alert("Startup Added ✅");
+            document.getElementById("startupForm").reset();
+            loadStartups();
+          } catch (err) {
+            alert(err.message || "Error ❌");
+          }
+        });
+
+      function selectStartup(id, name) {
+        localStorage.setItem("startup_id", id);
+        localStorage.setItem("startup_name", name);
+        window.location.href = "../founder_dashboard.html";
+      }
+    </script>
+  <script>
+(function() {
+  var name = localStorage.getItem("username") || "User";
+  var role = localStorage.getItem("role") || "Member";
+  var initials = name.split(" ").map(function(w){return w[0]||"";}).join("").slice(0,2).toUpperCase();
+  var brand = document.querySelector(".sidebar-brand");
+  if (brand) {
+    var chip = document.createElement("div");
+    chip.className = "sidebar-user-chip";
+    chip.innerHTML = "<div class=\"sidebar-user-avatar\">" + initials + "</div><div class=\"sidebar-user-info\"><div class=\"sidebar-user-name\">" + name + "</div><div class=\"sidebar-user-role\">" + role + "</div></div>";
+    var title = brand.querySelector(".sidebar-title");
+    if (title && title.nextSibling) {
+      brand.insertBefore(chip, title.nextSibling);
+    } else {
+      brand.appendChild(chip);
+    }
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,778 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="SFITS - Startup Funding & Investor Tracking System. Manage equity, track investments, and make smarter funding decisions."
+    />
+    <title>SFITS - Startup Funding & Investor Tracking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="theme.js"></script>
+    <style>
+      .hero {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        z-index: 1;
+        overflow: hidden;
+      }
+
+      .navbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.25rem 3rem;
+        animation: fadeInDown 0.6s ease;
+      }
+
+      .navbar-brand {
+        font-size: 1.5rem;
+        font-weight: 900;
+        letter-spacing: -1px;
+        background: var(--gradient-fresh);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .navbar-links {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .navbar-links .btn {
+        padding: 0.6rem 1.5rem;
+        font-size: 0.88rem;
+      }
+
+      .hero-content {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 3rem 4rem;
+      }
+
+      .hero-inner {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4rem;
+        align-items: center;
+        max-width: 1200px;
+        width: 100%;
+      }
+
+      .hero-text {
+        animation: fadeInLeft 0.8s ease 0.2s both;
+      }
+
+      .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 0.4rem 1rem;
+        background: rgba(99, 102, 241, 0.08);
+        border: 1px solid rgba(99, 102, 241, 0.15);
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--accent-indigo);
+        margin-bottom: 1.5rem;
+        letter-spacing: 0.3px;
+      }
+
+      .hero-badge span {
+        animation: pulse-glow 2s ease-in-out infinite;
+        width: 6px;
+        height: 6px;
+        background: var(--accent-indigo);
+        border-radius: 50%;
+        display: inline-block;
+      }
+
+      .hero-title {
+        font-size: 3.2rem;
+        font-weight: 900;
+        line-height: 1.1;
+        letter-spacing: -2px;
+        color: var(--text-primary);
+        margin-bottom: 1.25rem;
+      }
+
+      .hero-title .highlight {
+        background: var(--gradient-fresh);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .hero-subtitle {
+        font-size: 1.1rem;
+        line-height: 1.7;
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+        max-width: 460px;
+      }
+
+      .hero-cta {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        margin-bottom: 2.5rem;
+      }
+
+      .hero-cta .btn {
+        padding: 0.85rem 2rem;
+        font-size: 0.95rem;
+      }
+
+      .hero-stats {
+        display: flex;
+        gap: 2.5rem;
+      }
+
+      .hero-stat {
+        text-align: left;
+      }
+
+      .hero-stat-value {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: var(--accent-indigo);
+        letter-spacing: -1px;
+      }
+
+      .hero-stat-label {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .hero-visual {
+        position: relative;
+        animation: fadeInRight 0.8s ease 0.4s both;
+      }
+
+      .dashboard-preview {
+        background: linear-gradient(145deg, rgba(255, 250, 245, 0.96), rgba(240, 247, 255, 0.94));
+        border-radius: var(--radius-2xl);
+        padding: 1.75rem;
+        box-shadow: var(--shadow-xl);
+        border: 1px solid rgba(99, 102, 241, 0.14);
+        position: relative;
+        z-index: 2;
+      }
+
+      .preview-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 1.5rem;
+      }
+
+      .preview-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+      }
+
+      .preview-dot.red {
+        background: #f97066;
+      }
+
+      .preview-dot.yellow {
+        background: #f59e0b;
+      }
+
+      .preview-dot.green {
+        background: #10b981;
+      }
+
+      .preview-title {
+        margin-left: auto;
+        font-size: 0.72rem;
+        color: var(--text-muted);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .preview-cards {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+      }
+
+      .preview-card {
+        padding: 1rem;
+        border-radius: var(--radius-md);
+        text-align: center;
+      }
+
+      .preview-card:nth-child(1) {
+        background: linear-gradient(135deg, rgba(13, 148, 136, 0.08), rgba(13, 148, 136, 0.02));
+        border: 1px solid rgba(13, 148, 136, 0.12);
+      }
+
+      .preview-card:nth-child(2) {
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(99, 102, 241, 0.02));
+        border: 1px solid rgba(99, 102, 241, 0.12);
+      }
+
+      .preview-card:nth-child(3) {
+        background: linear-gradient(135deg, rgba(236, 72, 153, 0.08), rgba(236, 72, 153, 0.02));
+        border: 1px solid rgba(236, 72, 153, 0.12);
+      }
+
+      .preview-card-value {
+        font-size: 1.25rem;
+        font-weight: 800;
+        margin-bottom: 0.15rem;
+        letter-spacing: -0.5px;
+      }
+
+      .preview-card:nth-child(1) .preview-card-value {
+        color: var(--accent-teal);
+      }
+
+      .preview-card:nth-child(2) .preview-card-value {
+        color: var(--accent-indigo);
+      }
+
+      .preview-card:nth-child(3) .preview-card-value {
+        color: var(--accent-pink);
+      }
+
+      .preview-card-label {
+        font-size: 0.68rem;
+        color: var(--text-muted);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .preview-chart {
+        background: linear-gradient(135deg, #fff4ec, #eef6ff);
+        border-radius: var(--radius-md);
+        padding: 1rem;
+        height: 120px;
+        display: flex;
+        align-items: flex-end;
+        gap: 6px;
+        overflow: hidden;
+      }
+
+      .chart-bar {
+        flex: 1;
+        border-radius: 4px 4px 0 0;
+        animation: fadeInUp 0.6s ease both;
+        min-width: 0;
+      }
+
+      .chart-bar:nth-child(1) {
+        height: 45%;
+        background: var(--gradient-teal);
+        animation-delay: 0.6s;
+      }
+
+      .chart-bar:nth-child(2) {
+        height: 70%;
+        background: var(--gradient-blue);
+        animation-delay: 0.7s;
+      }
+
+      .chart-bar:nth-child(3) {
+        height: 55%;
+        background: var(--gradient-purple);
+        animation-delay: 0.8s;
+      }
+
+      .chart-bar:nth-child(4) {
+        height: 85%;
+        background: var(--gradient-fresh);
+        animation-delay: 0.9s;
+      }
+
+      .chart-bar:nth-child(5) {
+        height: 60%;
+        background: var(--gradient-green);
+        animation-delay: 1s;
+      }
+
+      .chart-bar:nth-child(6) {
+        height: 90%;
+        background: var(--gradient-teal);
+        animation-delay: 1.1s;
+      }
+
+      .chart-bar:nth-child(7) {
+        height: 40%;
+        background: var(--gradient-coral);
+        animation-delay: 1.2s;
+      }
+
+      .chart-bar:nth-child(8) {
+        height: 75%;
+        background: var(--gradient-purple);
+        animation-delay: 1.3s;
+      }
+
+      .hero-blob-1 {
+        position: absolute;
+        width: 200px;
+        height: 200px;
+        background: rgba(99, 102, 241, 0.08);
+        border-radius: 50%;
+        top: -60px;
+        right: -60px;
+        animation: blob 8s ease-in-out infinite;
+        z-index: 1;
+      }
+
+      .hero-blob-2 {
+        position: absolute;
+        width: 140px;
+        height: 140px;
+        background: rgba(13, 148, 136, 0.08);
+        border-radius: 50%;
+        bottom: -40px;
+        left: -40px;
+        animation: blob 10s ease-in-out infinite reverse;
+        z-index: 1;
+      }
+
+      .features-section {
+        position: relative;
+        z-index: 1;
+        padding: 4rem 3rem 5rem;
+        text-align: center;
+      }
+
+      .features-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--accent-teal);
+        margin-bottom: 0.75rem;
+      }
+
+      .features-title {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        letter-spacing: -1px;
+      }
+
+      .features-subtitle {
+        color: var(--text-muted);
+        font-size: 1rem;
+        margin-bottom: 3rem;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+        max-width: 900px;
+        margin: 0 auto 3rem;
+      }
+
+      .feature-item {
+        text-align: center;
+        padding: 2rem 1.5rem;
+        background: linear-gradient(180deg, rgba(255, 239, 228, 0.96), rgba(230, 242, 255, 0.94));
+        border: 1px solid rgba(99, 102, 241, 0.14);
+        border-radius: var(--radius-xl);
+        transition: all var(--transition-base);
+        box-shadow: 0 14px 30px rgba(99, 102, 241, 0.1);
+      }
+
+      .feature-item:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 18px 36px rgba(99, 102, 241, 0.14);
+        border-color: rgba(99, 102, 241, 0.18);
+      }
+
+      .feature-icon-wrap {
+        width: 56px;
+        height: 56px;
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 1.5rem;
+      }
+
+      .feature-item:nth-child(1) .feature-icon-wrap {
+        background: rgba(13, 148, 136, 0.1);
+      }
+
+      .feature-item:nth-child(2) .feature-icon-wrap {
+        background: rgba(99, 102, 241, 0.1);
+      }
+
+      .feature-item:nth-child(3) .feature-icon-wrap {
+        background: rgba(236, 72, 153, 0.1);
+      }
+
+      .feature-item:nth-child(4) .feature-icon-wrap {
+        background: rgba(249, 115, 22, 0.1);
+      }
+
+      .feature-item:nth-child(5) .feature-icon-wrap {
+        background: rgba(16, 185, 129, 0.1);
+      }
+
+      .feature-item:nth-child(6) .feature-icon-wrap {
+        background: rgba(139, 92, 246, 0.1);
+      }
+
+      .feature-item h3 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 0.35rem;
+        color: var(--text-primary);
+      }
+
+      .feature-item p {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        line-height: 1.5;
+      }
+
+      [data-theme="dark"] .dashboard-preview {
+        background: linear-gradient(145deg, rgba(49, 46, 129, 0.32), rgba(17, 24, 39, 0.96));
+        border-color: rgba(129, 140, 248, 0.2);
+        box-shadow: 0 24px 60px rgba(2, 6, 23, 0.46);
+      }
+
+      [data-theme="dark"] .features-section {
+        background:
+          radial-gradient(circle at 18% 20%, rgba(14, 165, 233, 0.08), transparent 24%),
+          radial-gradient(circle at 82% 28%, rgba(244, 114, 182, 0.08), transparent 26%);
+      }
+
+      [data-theme="dark"] .features-title {
+        color: #f8fafc;
+      }
+
+      [data-theme="dark"] .preview-title,
+      [data-theme="dark"] .preview-card-label {
+        color: #94a3b8;
+      }
+
+      [data-theme="dark"] .preview-chart {
+        background: linear-gradient(180deg, rgba(30, 27, 75, 0.72), rgba(17, 24, 39, 0.92));
+      }
+
+      [data-theme="dark"] .feature-item {
+        background: linear-gradient(180deg, #1f2a44 0%, #18233a 100%) !important;
+        border-color: rgba(96, 165, 250, 0.24) !important;
+        box-shadow: 0 18px 40px rgba(2, 6, 23, 0.5) !important;
+      }
+
+      [data-theme="dark"] .feature-item:hover {
+        border-color: rgba(45, 212, 191, 0.32) !important;
+        box-shadow: 0 24px 46px rgba(2, 6, 23, 0.58) !important;
+      }
+
+      [data-theme="dark"] .feature-item h3 {
+        color: #f8fafc !important;
+        text-shadow: none !important;
+      }
+
+      [data-theme="dark"] .feature-item p {
+        color: #cbd5e1 !important;
+      }
+
+      [data-theme="dark"] .features-subtitle {
+        color: #cbd5e1 !important;
+      }
+
+      [data-theme="dark"] .feature-item:nth-child(1) .feature-icon-wrap {
+        background: rgba(45, 212, 191, 0.16);
+      }
+
+      [data-theme="dark"] .feature-item:nth-child(2) .feature-icon-wrap {
+        background: rgba(129, 140, 248, 0.18);
+      }
+
+      [data-theme="dark"] .feature-item:nth-child(3) .feature-icon-wrap {
+        background: rgba(244, 114, 182, 0.16);
+      }
+
+      [data-theme="dark"] .feature-item:nth-child(4) .feature-icon-wrap {
+        background: rgba(251, 146, 60, 0.16);
+      }
+
+      [data-theme="dark"] .feature-item:nth-child(5) .feature-icon-wrap {
+        background: rgba(52, 211, 153, 0.16);
+      }
+
+      [data-theme="dark"] .feature-item:nth-child(6) .feature-icon-wrap {
+        background: rgba(167, 139, 250, 0.16);
+      }
+
+      .footer {
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-muted);
+        font-size: 0.78rem;
+        letter-spacing: 0.5px;
+        position: relative;
+        z-index: 1;
+        border-top: 1px solid rgba(0, 0, 0, 0.04);
+      }
+
+      @media (max-width: 900px) {
+        .hero-inner {
+          grid-template-columns: 1fr;
+          text-align: center;
+          gap: 2rem;
+        }
+
+        .hero-subtitle {
+          margin-left: auto;
+          margin-right: auto;
+        }
+
+        .hero-cta {
+          justify-content: center;
+        }
+
+        .hero-stats {
+          justify-content: center;
+        }
+
+        .hero-stat {
+          text-align: center;
+        }
+
+        .feature-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .navbar {
+          padding: 1rem 1.5rem;
+        }
+
+        .hero-content {
+          padding: 2rem 1.5rem;
+        }
+
+        .features-section {
+          padding: 3rem 1.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <div class="hero">
+      <nav class="navbar">
+        <div class="navbar-brand">SFITS</div>
+        <div class="navbar-links">
+          <a href="login.html" class="btn btn-outline" style="text-decoration:none;">Sign In</a>
+          <a href="signup.html" class="btn btn-primary" style="text-decoration:none;">Get Started</a>
+        </div>
+      </nav>
+
+      <div class="hero-content">
+        <div class="hero-inner">
+          <div class="hero-text">
+            <div class="hero-badge">
+              <span></span>
+              Startup Funding Platform
+            </div>
+            <h1 class="hero-title">
+              Track Equity.<br />
+              Manage <span class="highlight">Investments.</span><br />
+              Grow Smarter.
+            </h1>
+            <p class="hero-subtitle">
+              The all-in-one platform for founders and investors to manage cap tables, track funding
+              rounds, and make data-driven funding decisions effortlessly.
+            </p>
+            <div class="hero-cta">
+              <a href="signup.html" class="btn btn-gradient" style="text-decoration:none;">
+                Create Free Account →
+              </a>
+              <a href="login.html" class="btn btn-outline" style="text-decoration:none;">
+                Sign In
+              </a>
+            </div>
+            <div class="hero-stats">
+              <div class="hero-stat">
+                <div class="hero-stat-value">100+</div>
+                <div class="hero-stat-label">Startups</div>
+              </div>
+              <div class="hero-stat">
+                <div class="hero-stat-value">₹50Cr+</div>
+                <div class="hero-stat-label">Tracked</div>
+              </div>
+              <div class="hero-stat">
+                <div class="hero-stat-value">500+</div>
+                <div class="hero-stat-label">Investors</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-visual">
+            <div class="hero-blob-1"></div>
+            <div class="hero-blob-2"></div>
+            <div class="dashboard-preview">
+              <div class="preview-header">
+                <div class="preview-dot red"></div>
+                <div class="preview-dot yellow"></div>
+                <div class="preview-dot green"></div>
+                <div class="preview-title">Live Dashboard</div>
+              </div>
+              <div class="preview-cards">
+                <div class="preview-card">
+                  <div class="preview-card-value">₹2.4M</div>
+                  <div class="preview-card-label">Funding</div>
+                </div>
+                <div class="preview-card">
+                  <div class="preview-card-value">68%</div>
+                  <div class="preview-card-label">Equity</div>
+                </div>
+                <div class="preview-card">
+                  <div class="preview-card-value">12</div>
+                  <div class="preview-card-label">Investors</div>
+                </div>
+              </div>
+              <div class="preview-chart">
+                <div class="chart-bar"></div>
+                <div class="chart-bar"></div>
+                <div class="chart-bar"></div>
+                <div class="chart-bar"></div>
+                <div class="chart-bar"></div>
+                <div class="chart-bar"></div>
+                <div class="chart-bar"></div>
+                <div class="chart-bar"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section class="marquee-section">
+      <div class="marquee-heading">
+        TRUSTED BY FOUNDERS BACKED BY
+      </div>
+
+      <div class="marquee-wrapper">
+        <div class="marquee-track">
+          <div class="marquee-group">
+            <span>Sequoia</span>
+            <span>Accel</span>
+            <span>Y Combinator</span>
+            <span>TechNova</span>
+            <span>Tiger Global</span>
+            <span>SoftBank</span>
+            <span>Lightspeed</span>
+            <span>Matrix</span>
+            <span>Nexus</span>
+            <span>Blume</span>
+          </div>
+
+          <div class="marquee-group">
+            <span>Sequoia</span>
+            <span>Accel</span>
+            <span>Y Combinator</span>
+            <span>TechNova</span>
+            <span>Tiger Global</span>
+            <span>SoftBank</span>
+            <span>Lightspeed</span>
+            <span>Matrix</span>
+            <span>Nexus</span>
+            <span>Blume</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="features-section">
+      <div class="features-label">What We Offer</div>
+      <h2 class="features-title">Everything you need to manage funding</h2>
+      <p class="features-subtitle">
+        From cap tables to investor tracking, SFITS gives you the tools to succeed.
+      </p>
+
+      <div class="feature-grid">
+        <div class="feature-item">
+          <div class="feature-icon-wrap"><i class="ri-pie-chart-2-line text-teal-600"></i></div>
+          <h3>Cap Tables</h3>
+          <p>Real-time ownership tracking with visual equity distribution</p>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon-wrap"><i class="ri-money-rupee-circle-line text-indigo-600"></i></div>
+          <h3>Funding Rounds</h3>
+          <p>Manage Pre-Seed to Series C with valuation history</p>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon-wrap"><i class="ri-line-chart-line text-pink-600"></i></div>
+          <h3>Analytics</h3>
+          <p>Equity charts and investment trend visualization</p>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon-wrap"><i class="ri-rocket-line text-orange-500"></i></div>
+          <h3>Startup Hub</h3>
+          <p>Register, manage, and showcase your startups</p>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon-wrap"><i class="ri-hand-coin-line text-emerald-600"></i></div>
+          <h3>Investor Connect</h3>
+          <p>Browse startups and make investment decisions</p>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon-wrap"><i class="ri-history-line text-violet-600"></i></div>
+          <h3>History Tracking</h3>
+          <p>Complete audit trail of equity changes over time</p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      SFITS v1.0 - Startup Funding & Investor Tracking System • DBMS Project 2025
+    </footer>
+  </body>
+  <script>
+    const items = document.querySelectorAll(".feature-item");
+
+    const observer = new IntersectionObserver(
+      (entries, observerRef) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("show");
+            observerRef.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        threshold: 0.15,
+        rootMargin: "0px 0px -50px 0px",
+      },
+    );
+
+    items.forEach((item) => observer.observe(item));
+  </script>
+</html>

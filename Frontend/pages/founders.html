@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Founders - SFITS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../styles.css" />
+    <script src="../theme.js"></script>
+  </head>
+  <body>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="app-layout">
+      <nav class="sidebar founder">
+        <div class="sidebar-brand">
+          <div class="sidebar-title">SFITS</div>
+          <div class="sidebar-subtitle">
+            <i class="ri-sparkling-2-line"></i> Workspace
+          </div>
+          <div class="sidebar-role-chip">
+            <i class="ri-building-2-line"></i>
+            <span>Founder Panel</span>
+          </div>
+          <!-- <p class="sidebar-role-note">Manage your startups, ownership, rounds, and investor momentum from one focused dashboard.</p> -->
+        </div>
+        <ul class="sidebar-nav">
+          <li>
+            <a href="../founder_dashboard.html"
+              ><span class="nav-icon"><i class="ri-dashboard-line"></i></span>
+              Dashboard</a
+            >
+          </li>
+          <li>
+            <a href="startups.html"
+              ><span class="nav-icon"><i class="ri-rocket-line"></i></span> My
+              Startups</a
+            >
+          </li>
+          <li>
+            <a href="founders.html" class="active"
+              ><span class="nav-icon"><i class="ri-team-line"></i></span>
+              Founders</a
+            >
+          </li>
+          <li>
+            <a href="funding.html"
+              ><span class="nav-icon"
+                ><i class="ri-money-dollar-circle-line"></i
+              ></span>
+              Funding</a
+            >
+          </li>
+          <li>
+            <a href="captable.html"
+              ><span class="nav-icon"><i class="ri-pie-chart-line"></i></span>
+              Cap Table</a
+            >
+          </li>
+          <li>
+            <a href="history.html"
+              ><span class="nav-icon"><i class="ri-time-line"></i></span>
+              History</a
+            >
+          </li>
+        </ul>
+        <div class="sidebar-bottom">
+          <a href="../welcome.html" onclick="localStorage.clear()"
+            ><i class="ri-logout-box-r-line"></i> Logout</a
+          >
+        </div>
+      </nav>
+
+      <div class="main-content">
+        <div
+          class="workspace-header-card animate-fade-in-down"
+        >
+          <div>
+            <div class="role-badge founder mb-2">
+              <i class="ri-building-line"></i> Founder Panel
+            </div>
+            <h1
+              class="text-2xl font-extrabold tracking-tight"
+              style="color: var(--text-primary)"
+            >
+              Founder Management
+            </h1>
+            <p class="text-sm mt-1" style="color: var(--text-muted)">
+              Add and manage co-founders for your startups
+            </p>
+          </div>
+          <div class="workspace-header-meta">
+            <div class="workspace-header-icon"><i class="ri-team-line"></i></div>
+            <div class="workspace-header-copy">
+              <span>Workspace Focus</span>
+              <strong>Founder Records</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- FORM -->
+        <div
+          class="panel-card rounded-2xl p-6 mb-6 animate-fade-in-up delay-1"
+          style="
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            box-shadow: var(--shadow-sm);
+          "
+        >
+          <div class="flex items-center gap-2 mb-5">
+            <div
+              class="w-8 h-8 rounded-lg flex items-center justify-center text-sm text-violet-600"
+              style="background: rgba(139, 92, 246, 0.1)"
+            >
+              <i class="ri-user-add-line"></i>
+            </div>
+            <h2 class="text-base font-bold" style="color: var(--text-primary)">
+              Add Co-Founder
+            </h2>
+          </div>
+          <form
+            id="founderForm"
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+          >
+            <div>
+              <label
+                class="block text-xs font-semibold mb-1"
+                style="color: var(--text-secondary)"
+                >Founder Name</label
+              ><input id="name" type="text" placeholder="John Doe" required />
+            </div>
+            <div>
+              <label
+                class="block text-xs font-semibold mb-1"
+                style="color: var(--text-secondary)"
+                >Email</label
+              ><input
+                id="email"
+                type="email"
+                placeholder="john@startup.com"
+                required
+              />
+            </div>
+            <div>
+              <label
+                class="block text-xs font-semibold mb-1"
+                style="color: var(--text-secondary)"
+                >Role</label
+              ><input id="role" type="text" placeholder="CEO / CTO" />
+            </div>
+            <div>
+              <label
+                class="block text-xs font-semibold mb-1"
+                style="color: var(--text-secondary)"
+                >Equity (%)</label
+              ><input id="equity" type="number" placeholder="25" required />
+            </div>
+            <div>
+              <label
+                class="block text-xs font-semibold mb-1"
+                style="color: var(--text-secondary)"
+                >Startup</label
+              ><select id="startup_id" required>
+                <option value="">Select Startup</option>
+              </select>
+            </div>
+            <div class="flex items-end">
+              <button class="btn btn-gradient w-full">
+                <i class="ri-team-line"></i> Add Co-Founder
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- TABLE -->
+        <div
+          class="panel-card rounded-2xl p-6 animate-fade-in-up delay-2"
+          style="
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            box-shadow: var(--shadow-sm);
+          "
+        >
+          <div class="flex items-center gap-2 mb-5">
+            <div
+              class="w-8 h-8 rounded-lg flex items-center justify-center text-sm"
+              style="background: rgba(16, 185, 129, 0.1)"
+            >
+              📋
+            </div>
+            <h2 class="text-base font-bold" style="color: var(--text-primary)">
+              Founder List
+            </h2>
+          </div>
+          <div class="overflow-x-auto">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Role</th>
+                  <th>Startup</th>
+                  <th>Equity (%)</th>
+                </tr>
+              </thead>
+              <tbody id="founderTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const API_BASE = "http://localhost:5000";
+      let foundersData = [];
+      function isValidEmail(email) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      }
+
+      window.onload = async function () {
+        const user_id = localStorage.getItem("user_id");
+        if (!user_id) {
+          alert("Please login first");
+          window.location.href = "../login.html";
+          return;
+        }
+        await loadStartups();
+        await loadFounders();
+        const current = localStorage.getItem("startup_id");
+        if (current) document.getElementById("startup_id").value = current;
+        document
+          .getElementById("founderForm")
+          .addEventListener("submit", addFounder);
+        document
+          .getElementById("startup_id")
+          .addEventListener("change", (e) => {
+            localStorage.setItem("startup_id", e.target.value);
+          });
+      };
+
+      async function loadStartups() {
+        const user_id = localStorage.getItem("user_id");
+        try {
+          const res = await fetch(`${API_BASE}/startups/${user_id}`);
+          if (!res.ok) throw new Error(await res.text());
+          const data = await res.json();
+          const dropdown = document.getElementById("startup_id");
+          dropdown.innerHTML = `<option value="">Select Startup</option>`;
+          data.forEach((s) => {
+            dropdown.innerHTML += `<option value="${s.startup_id}">${s.startup_name}</option>`;
+          });
+          const saved = localStorage.getItem("startup_id");
+          if (saved) dropdown.value = saved;
+        } catch (err) {
+          console.error("Failed:", err);
+        }
+      }
+
+      async function addFounder(e) {
+        e.preventDefault();
+        const name = document.getElementById("name").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const role = document.getElementById("role").value.trim();
+        const equity = document.getElementById("equity").value;
+        const startup_id = document.getElementById("startup_id").value;
+        if (!name) {
+          alert("Enter name");
+          return;
+        }
+        if (!isValidEmail(email)) {
+          alert("Enter valid email");
+          return;
+        }
+        if (!startup_id) {
+          alert("Select startup");
+          return;
+        }
+        const equityValue = Number(equity);
+        if (isNaN(equityValue) || equityValue <= 0) {
+          alert("Equity must be positive");
+          return;
+        }
+        const existingEquity = foundersData
+          .filter((f) => f.startup_id === startup_id)
+          .reduce((sum, f) => sum + Number(f.initial_equity || 0), 0);
+        if (existingEquity + equityValue > 100) {
+          alert("Total equity cannot exceed 100%");
+          return;
+        }
+        try {
+          const res = await fetch(`${API_BASE}/addFounder`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              startup_id,
+              founders: [{ name, email, role, equity }],
+            }),
+          });
+          if (!res.ok) {
+            alert(await res.text());
+            return;
+          }
+          alert("Founder added ✅");
+          const current = localStorage.getItem("startup_id");
+          document.getElementById("founderForm").reset();
+          if (current) document.getElementById("startup_id").value = current;
+          await loadFounders();
+        } catch (err) {
+          alert("Backend error");
+        }
+      }
+
+      async function loadFounders() {
+        const user_id = localStorage.getItem("user_id");
+        try {
+          const res = await fetch(`${API_BASE}/founders/${user_id}`);
+          if (!res.ok) throw new Error();
+          const data = await res.json();
+          foundersData = data;
+          const table = document.getElementById("founderTable");
+          table.innerHTML = "";
+          if (data.length === 0) {
+            table.innerHTML = `<tr><td colspan="4" class="text-center py-8" style="color:var(--text-muted);">No founders yet</td></tr>`;
+            return;
+          }
+          data.forEach((f) => {
+            table.innerHTML += `<tr><td class="font-semibold" style="color:var(--text-primary);">${f.founder_name}</td><td>${f.founder_role || "-"}</td><td><span class="badge badge-blue">${f.startup_name}</span></td><td><span class="font-bold" style="color:var(--accent-purple);">${f.initial_equity}%</span></td></tr>`;
+          });
+        } catch (err) {
+          console.error("Failed:", err);
+        }
+      }
+    </script>
+  <script>
+(function() {
+  var name = localStorage.getItem("username") || "User";
+  var role = localStorage.getItem("role") || "Member";
+  var initials = name.split(" ").map(function(w){return w[0]||"";}).join("").slice(0,2).toUpperCase();
+  var brand = document.querySelector(".sidebar-brand");
+  if (brand) {
+    var chip = document.createElement("div");
+    chip.className = "sidebar-user-chip";
+    chip.innerHTML = "<div class=\"sidebar-user-avatar\">" + initials + "</div><div class=\"sidebar-user-info\"><div class=\"sidebar-user-name\">" + name + "</div><div class=\"sidebar-user-role\">" + role + "</div></div>";
+    var title = brand.querySelector(".sidebar-title");
+    if (title && title.nextSibling) {
+      brand.insertBefore(chip, title.nextSibling);
+    } else {
+      brand.appendChild(chip);
+    }
+  }
+})();
+</script>
+</body>
+</html>
