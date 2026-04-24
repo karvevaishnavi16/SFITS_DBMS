@@ -20,7 +20,7 @@ When a startup raises funds from multiple investors across multiple funding roun
 
 - **Frontend** — HTML, Vanilla CSS, Tailwind CDN, Chart.js
 - **Backend** — Node.js, Express.js
-- **Database** — MySQL (relational schema with `STARTUP`, `FOUNDER`, `FUNDING_ROUND`, `INVESTMENT`, `EQUITY_HISTORY`)
+- **Database** — MySQL 
 
 ---
 
