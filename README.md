@@ -46,17 +46,18 @@ npm install express mysql2 cors
 - Create database: `SFITS_DBMS_PRJ`
 - Default credentials in `backend/server.js`: `root` / `root123` — update if different
 
-### 4. Start the server
+### 4. Start the development environment
 
 ```bash
-node server.js
-# → Server running on http://localhost:5000
+npm run dev
 ```
+- This will start the **Backend** (on port 5000) and the **Frontend** (on port 3000) simultaneously.
+- The frontend will automatically open at `http://localhost:3000`.
 
-### 5. Open the frontend
+### 5. Alternative: Manual Start
 
-- Open `Frontend/welcome.html` in a browser (or use VS Code Live Server)
-- No frontend build step required
+- **Backend only:** `npm run server`
+- **Frontend only:** `npm run client` (or open `Frontend/welcome.html` manually)
 
 ---
 

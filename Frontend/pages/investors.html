@@ -64,6 +64,12 @@
               History</a
             >
           </li>
+          <li>
+            <a href="investors.html" class="active"
+              ><span class="nav-icon"><i class="ri-user-follow-line"></i></span>
+              Investors</a
+            >
+          </li>
         </ul>
         <div class="sidebar-bottom">
           <a href="../welcome.html" onclick="localStorage.clear()"
@@ -153,7 +159,7 @@
           const res = await fetch("http://localhost:5000/addInvestor", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, firm, type, country }),
+            body: JSON.stringify({ name, firm, type: document.getElementById("type").value, country }),
           });
           if (res.ok) {
             alert("Investor added!");
